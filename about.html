@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Combinatorics of Permutations: About</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya%7CBuda:300%7CPalanquin%7CActor" />
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-serif" type="text/css" />
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-sans-serif" type="text/css" />
+        <link rel="stylesheet" href="https://cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css">
+        <link rel="stylesheet" href="./css/default.css" />
+        <link rel="stylesheet" href="./css/math.css" />
+        <link rel="stylesheet" href="./css/syntax.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        </script>
+    </head>
+    <body>
+        <div class="left">
+            <div class="logo">
+                    <a href="./"><img src="./images/LambdaPermutations.png" width="200px" /><Br />Combinatorics <Br /> of <Br /> Permutations</a>
+                    Vinay Madhusudanan
+            </div>
+        </div>
+        <div class="main">
+            <h1 class="title">About</h1>
+            <p>This is my attempt to blog my way through Miklós Bóna's <a href="https://www.crcpress.com/Combinatorics-of-Permutations-Second-Edition/Bona/p/book/9781439850510" target="_blank" title="Combinatorics of Permutations - CRC Press">Combinatorics of Permutations</a> – in Haskell! I will extract any computational elements that I can see while I progress through the book, Haskell it up, and write about it here. The material in the book provides ample scope for this since it contains, on the one hand, structures such as trees and Young's tableaux, and on the other, computational problems such as finding or counting all permutations with a given set of descents. My knowledge of Haskell is not very advanced, though, and I may not code something in the most efficient way possible. But as I learn more, I will come back and add to earlier posts.</p>
+<h4 id="navigation">Navigation</h4>
+<p>This is a blog, more or less. It is a blog in the sense that I will be updating the content by adding new posts over time. You will even find teasers for the posts on the <a href="./" title="Home"><i title="Home" arial-label="Home" class="fa fa-home" aria-hidden="true" role="img"></i> homepage</a> (which you can get to by clicking the logo on the left column), arranged from latest to oldest. But also on the left, you will find a menu (click on the '≡') listing the current posts in the same order as the book's chapters. On the right (or bottom), you can find links to this page and the <a href="./contents.html" title="Contents"><i title="Contents" aria-label="Contents" class="fa fa-list" aria-hidden="true" role="img"></i> contents page</a>, and some other examples of my (feeble) online presence. All external links anywhere on this site are set to open in a new tab/window.</p>
+<h4 id="site-design">Site Design</h4>
+<p>As soon as I decided to host this blog on GitHub, I looked for static site generators, and Jekyll and Hugo were the first suggestions (my friend has a <a href="http://godot-bloggy.me/" title="Good Vibrations" target="_blank">blog</a> which is, I believe, generated using Hugo). I also browsed through the themes available for these and instantly fell in love with the <a href="http://hyde.getpoole.com/" title="Hyde · A Jekyll theme" target="_blank">Hyde theme</a>. You can see its influence here in the two column format and somewhat similar colours. But Jekyll is written in Ruby, and Hugo in Go, so why shouldn't I use one written in Haskell when what I'm trying to do is use Haskell as much as possible? A quick search led me to <a href="https://jaspervdj.be/hakyll/" title="Hakyll" target="_blank">Hakyll</a>. The themes I found at first were not as appealing compared to what I'd seen for the other two options (especially, I couldn't find a Hyde equivalent). Still, <em>content before form</em>, so I tried downloading Hakyll. It took a lot of tries before I managed to install Hakyll (because Cabal installation of some dependencies like old-time fails on Windows for some bizarre reason) via Stack. Thanks to the <a href="http://sigkill.dk/" title="Troels Henriksen" target="_blank">many</a>, <a href="http://yannesposito.com/" title="Yann Esposito" target="_blank">many</a> <a href="http://reichertbrothers.com/" title="Reichert Brothers" target="_blank">present</a> or <a href="https://axiomatic.neophilus.net/" title="Axiomatic Semantics" target="_blank">former </a>Hakyll users who have written very helpful posts on adding various features – displaying an automatically generated list of contents in every page would have been impossible for me otherwise. And then it took many more days of Hakyll and CSS work (again thanks to the many Hakyll websites where I saw thematic elements that I liked and stole). I am in no position to write a helpful tutorial along the same lines, but the entire source of this site (including the Hakyll source file) is available <a href="https://github.com/VynM/Comutations" title="Comutations – GitHub" target="_blank">here</a>.</p>
+<h4 id="links">Links</h4>
+<ol type="1">
+<li><a href="http://godot-bloggy.me/" title="Good Vibrations" target="_blank">Good Vibrations</a>: A physics, mathematics, aerodynamics, and music blog by <a href="https://github.com/GodotMisogi" title="GitHub – Godot Misogi" target="_blank">Arjit Seth</a>.</li>
+<li><a href="https://spectral-categories.blogspot.com/" title="Spectral Categories" target="_blank">Spectral Categories</a>: A blog that I (claim to) co-write with <a href="https://ca.linkedin.com/in/karem-abdelgalil-080678113" title="Linedin – Karem Abdelgalil" target="_blank">Karem Abdelgalil</a>, where we post solutions of exercises from Paolo Aluffi's <a href="https://bookstore.ams.org/gsm-104" title="Algebra: Chapter 0" target="_blank">Algebra: Chapter 0</a>.</li>
+<li><a href="https://github.com/GodotMisogi/math-notes/tree/master/Hopf%20Algebra%20and%20Combinatorics" title="GitHub – Hopf Algebra and Combinatorics" target="_blank">Hopf Algebra and Combinatorics</a>: Lecture notes co-written with <a href="https://github.com/GodotMisogi" title="GitHub – Godot Misogi" target="_blank">Arjit</a> based on our ongoing study of <a href="https://www.youtube.com/playlist?list=PL-XzhVrXIVeRLeezwY9h4M68k6yB3yOo-" title="YouTube – Hopf Algebras and Combinatorics" target="_blank">Hopf algebras</a>.</li>
+</ol>
+                <nav><div id="mySidenav" class="sidenav" style="margin-left:0%">
+        <a id="btnNav" class="closebtn" title="Show/Hide Contents" style="cursor: pointer;">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+        </a>
+        <div class="contentsbar"><div class="contentslist">
+            
+        </div></div>
+    </div>
+
+    <script>
+    document.getElementById("btnNav").onclick = function() {
+        document.getElementById("mySidenav").classList.toggle("open");
+        document.getElementById("btnNav").classList.toggle("change");
+
+    }
+    </script></nav>
+        </div>
+        <nav>
+        <div class="rightContainer"><div class="right"><div class="iconset">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+            <a href="./" class="homeLink">
+                <i title="Home" arial-label="Home" class="fa fa-home" aria-hidden="true" role="img"></i>
+            </a><a href="./about.html" class="abLink">
+                <i title="About" aria-label="About" class="fa fa-info" aria-hidden="true" role="img"></i>
+            </a>
+            <a href="./contents.html" class="ctsLink">
+                <i title="Contents" aria-label="Contents" class="fa fa-list" aria-hidden="true" role="img"></i>
+            </a>
+            <div class="contact">
+                <a href="https://github.com/VynM" target="_blank" class="ghLink">
+                    <i title="GitHub" aria-label="GitHub" class="fa fa-github" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="https://stackexchange.com/users/4492099/m-vinay" target="_blank" class="seLink">
+                    <i title="Stack Exchange" aria-label="Stack Exchange" class="fa fa-stack-exchange" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="https://quora.com/profile/Vinay-Madhusudanan" target="_blank" class="qLink">
+                    <i title="Quora" aria-label="Quora" class="fa fa-quora" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="mailto:vinay.m@gmail.com" class="emLink">
+                    <i title="Email" aria-label="Email" class="fa fa-envelope-o" aria-hidden="true" role="img"></i>
+                </a>
+            </div>
+        </div></div></div>
+        </nav>
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll" target="_blank">
+                Hakyll <img src="./images/haskell-logo.png" width="20px">
+            </a>
+        </footer>
+    </body>
+</html>
