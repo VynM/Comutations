@@ -1,0 +1,20 @@
+---
+title: Home
+---
+
+A Haskell accompaniment to Miklós Bóna's <a href="https://www.crcpress.com/Combinatorics-of-Permutations-Second-Edition/Bona/p/book/9781439850510" target="_blank" title="Combinatorics of Permutations - CRC Press">Combinatorics of Permutations</a> (see <a href="/about.html" title="About"><i title="About" aria-label="About" class="fa fa-info" aria-hidden="true" role="img"></i> About</a>).
+
+<P></P>
+$for(postTeasers)$
+    <div class = "teaser">
+        <div class="title"><a href="$url$">$title$</a></div>
+        <p>
+        $if(teaser)$
+            $teaser$<a href="$url$">...</a>
+        $else$
+            $body$
+        $endif$
+        </p>
+    </div>
+    <p></p>
+$endfor$
