@@ -1,3 +1,8 @@
+pre {
+  font-family: "Fira Code";
+  font-variant-ligatures: none;
+}
+
 a.sourceLine {
   background-color: #151515;
   display: inline-block; 
@@ -5,6 +10,7 @@ a.sourceLine {
   pointer-events: none; 
   color: inherit;
   text-decoration: inherit;
+  padding-right: 10px;
 }
 a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
@@ -16,11 +22,15 @@ code {
   color: palegoldenrod;
   padding-left: 5px;
   padding-right: 5px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  font-size: 13px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 14px;
   border-radius: 2px;
   letter-spacing: 0px;
+}
+
+pre code {
+  padding-left: 0px;
 }
 
 div.sourceCode {
@@ -47,14 +57,13 @@ code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode {
   margin: 1em 0;
   line-height: normal;
-  padding-top: 10px0px;
 }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode {
     background-color: #151515;
     overflow: auto;  
-    padding:25px;
+    padding: 5px 15px 10px 15px;
     border-style: solid 1px;
     border-color: #252530;;
     border-radius: 0px; 

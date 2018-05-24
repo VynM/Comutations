@@ -10,15 +10,49 @@
     </section>
 </article>
 
-<div id="disqus_thread"></div>
-<script>
+    <p><Br/></p><hr>
+    <div class="comments">    
+    <header class="comments">DISQUSsion</header>
+    Thoughts, suggestions, questions, criticism…<P></P>
+    <span class="note">
+            <header>Note</header>
+            You can use <a href="https://help.disqus.com/commenting/what-html-tags-are-allowed-within-comments" title="Disqus – HTML Tags" target="_blank">HTML tags and syntax highlighting</a> in your comments.
+            To get syntax highlighting, use
+            <div>
+                <div style="z-index:0; position:absolute; vertical-align: middle; opacity:0;"><input type="text" value="<pre><code class='haskell'> </code></pre>" id="codeText" style="height: 1px;"></div>
+                <div style="z-index:1; position:relative">
+                <pre><code class="sourceCode HTML">&lt;pre&gt;&lt;code class='haskell'&gt; &lt;/code&gt;&lt;/pre&gt;</code> <a title="Copy to clipboard" onclick="copyCode()" class="copyCode"><i class="fa fa-clipboard" aria-hidden="true"></i></a></pre>
+                </div>
+            </div>
+            <script>
+                function copyCode() {
+                    var codeTag = document.getElementById("codeText");
+                    codeTag.select();
+                    document.execCommand("copy");
+                }
+            </script>
+            (just copy and paste the above, and insert your code between the <code>code</code> tags). Unfortunately, <a href="https://stackoverflow.com/a/18158057/9530197" title="Stack Overflow Answer" target="_blank">Disqus does not presently support MathJax</a>. So we have to either use <a href="http://mathb.in/" title="MathBin" target="_blank">a math pastebin</a>, or just type \(\LaTeX\) code and hope everyone can read it, or…
+<pre><a href="https://github.com/GodotMisogi/math-notes/tree/master/Hopf%20Algebra%20and%20Combinatorics" title="Universal Property of Tensor Products" target="_blank"
+>  V×W-ϕ->V⊗W
+    \     |
+    y\    |ỹ
+      \   |
+        ↘ ↓
+         L</a></pre>
+use ASCII math?!
+    </span>
+    <P></P>
+    <div id="disqus_thread"></div>
+    </div>
+    
+    <script>
     /**
     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
     
     var disqus_config = function () {
-    this.page.url = $url$;  // Replace PAGE_URL with your page's canonical URL variable
-    this.page.identifier = $title$+$date$; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    this.page.url = 'https://vynm.github.io/Comutations/'+'$url$';  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = '$title$+$date$'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
     
     (function() { // DON'T EDIT BELOW THIS LINE

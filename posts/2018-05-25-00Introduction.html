@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Combinatorics of Permutations: Introduction</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya%7CBuda:300%7CPalanquin%7CActor%7CRaleway:900" />
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-serif" type="text/css" />
+        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-sans-serif" type="text/css" />
+        <link rel="stylesheet" href="https://cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css">
+        <link rel="stylesheet" href="../css/default.css" />
+        <link rel="stylesheet" href="../css/math.css" />
+        <link rel="stylesheet" href="../css/syntax.css" />
+        <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    </head>
+    <body>
+        <div class="left">
+            <div class="logo">
+                    <a href="../"><img src="../images/LambdaPermutations.png" width="200px" /><Br />Combinatorics <Br /> of <Br /> Permutations</a>
+                    Vinay Madhusudanan
+            </div>
+        </div>
+        <div class="main">
+            <h1 class="title">Introduction</h1>
+            <article class="post">
+    <section class="header">
+            <div class="postDate">Posted on May 25, 2018
+        </div>
+    </section>
+    <section class="postBody">
+        <p>This is a very small chapter (just one page) in the book, and all we do here is define a permutation, introduce some notation, and count the total number of permutations of a given number of objects (everyone knows the answer). Nevertheless, we need to tell Haskell what a set is before we can tell it what a permutation is. And then we can also define some of the familiar operations on sets, which may come in handy later. <!--more--></p>
+<p>A permutation is an arrangement. Of elements of some set. We don't care what the elements are, so they might as well be the familar natural numbers that are easy to talk about. We'll denote the set of the first <span class="math inline">\(n\)</span> natural numbers as <span class="math inline">\([n] = \{1, 2, \ldots, n\}\)</span>. Now we can define (our own version of) what a permutation is.</p>
+<div class="def env">
+<header>
+Definition: Permutation
+</header>
+<section>
+A <em>permutation</em> is a linear ordering of the elements of the set <span class="math inline">\([n]\)</span>. In particular, this is an <em><span class="math inline">\(n\)</span>-permutation</em>. A general <span class="math inline">\(n\)</span>-permutation <span class="math inline">\(p\)</span> is written as <span class="math inline">\(p_1 p_2 \cdots p_n\)</span>, where <span class="math inline">\(p_i\)</span> is the <nobr><span class="math inline">\(i\)</span><sup>th</sup></nobr> element in the linear order defined by <span class="math inline">\(p\)</span>.
+</section>
+</div>
+<p>There are other possible definitions of permutations, and we will be seeing those in later chapters.</p>
+<p>Okay, so we've got permutations, but where is the combinatorics? Here it is, in this well known result.</p>
+<div class="prop env">
+<a id="prop:n-permutations"></a>
+<header>
+Proposition
+</header>
+<section>
+The number of <span class="math inline">\(n\)</span>-permutations is <span class="math inline">\(n!\)</span>.
+</section>
+</div>
+<p>I promise the rest of this post will be less straightforward.<sup><a title="Bóna ends the introduction here, with 'I promise the rest of the book will be less straightforward'" style="cursor:pointer;">1</a></sup></p>
+<h2 id="sets-in-haskell">Sets in Haskell</h2>
+<p>To efficiently encode a set in Haskell, we will use a <a href="https://en.wikipedia.org/wiki/Binary_search_tree" title="Wikipedia – Binary Search Tree" target="_blank">binary search tree</a>. First, let us look at what a binary tree is. A binary tree can be recursively defined as a structure consisting of a node and two children (left and right), each of which is itself a binary tree. But that defines an infinite binary tree, so we add a base case to this definition by stating that a binary tree is either an empty tree, or non-empty tree as we already defined.</p>
+<div class="exm env">
+<header>
+Example: Binary Tree
+</header>
+<section>
+<span style="display:inline-block; vertical-align: middle; line-height: 20px;">
+<pre>
+    a
+   / \
+  b   c
+ /\   /\
+.  . x  y
+</pre>
+</span> (where . denotes an empty tree), or equivalently <span style="display:inline-block; vertical-align: middle; line-height: 20px;">
+<pre>
+    a
+   / \
+  b   c
+      /\
+     x  y
+</pre>
+</span> is a binary tree with root node 'a', whose left child is the (singleton) binary tree with root 'b' and right child is the tree with root 'c'. This latter tree itself has two children with root nodes 'x' and 'y'.
+</section>
+</div>
+<p>A binary search tree is a binary tree satisfying a constraint: every element in the left child of a node must be smaller than the element at the node, and similarly, every element in the right child should be greater than the element at the node.</p>
+<p>For the moment, let us set the contraint aside and try to define a simple binary tree in Haskell. We will call it <code class="sourceCode haskell"><span class="dt">Set</span></code>, since that's what we're trying to define using trees. Our recursive definition of a binary tree (or <code class="sourceCode haskell"><span class="dt">Set</span></code>) can be beautifully implemented in Haskell by means of a <a href="https://wiki.haskell.org/Type#Data_declarations" title="Data Declarations – HaskellWiki" target="_blank">data declaration</a>:<br />
+<code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Set</span> t <span class="fu">=</span> <span class="dt">Null</span> <span class="fu">|</span> <span class="dt">NonEmpty</span> t (<span class="dt">Set</span> t) (<span class="dt">Set</span> t)</code>.<br />
+</p>
+<p><span class="qnote"> <a href="http://learnyouahaskell.com/making-our-own-types-and-typeclasses" title="Learn You a Haskell for Great Good!" target="_blank">Here</a> is a great tutorial on types and typeclasses, if things are starting to get confusing. </span></p>
+<p>However, the constructor name <code class="sourceCode haskell"><span class="dt">NonEmpty</span></code> is too unwieldly, so let's replace it by something shorter. And why not <code class="sourceCode haskell"><span class="dt">Set</span></code> itself? This is allowed, and it causes no problems – we just have to remember which is which. One is a type and the other is a function (Exercise: Write the type of the constructor function <code class="sourceCode haskell"><span class="dt">Set</span></code>), so there is no cause for confusion.</p>
+<p>Now using <a href="https://en.wikibooks.org/wiki/Haskell/Pattern_matching" title="Pattern Matching – Haskell Wikibook" target="_blank">pattern matching</a> we can define a function that extracts the element at the root node of the tree representing a set:<br />
+<code class="sourceCode haskell">root (<span class="dt">Set</span> n left right) <span class="fu">=</span> n</code>.<br />
+</p>
+<p>We could similarly define functions to extract the left and right children of the tree. But this is so mechanical a process that we can think of automating it. And that has already been done! Haskell's <em>record syntax</em> for data declarations automatically defines these &quot;getter&quot; functions for us. So let's rewrite the definition of <code class="sourceCode haskell"><span class="dt">Set</span></code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Set</span> t <span class="fu">=</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">    <span class="dt">Null</span> <span class="fu">|</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="dt">Set</span> {</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="ot">        root ::</span> t,</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="ot">        lSet ::</span> <span class="dt">Set</span> t,</a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="ot">        rSet ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    }</a></code></pre></div>
+<p>This is a binary tree, not a binary <em>search</em> tree – because there is nothing to stop us from defining a set <code class="sourceCode haskell"><span class="dt">Set</span> <span class="dv">1</span> (<span class="dt">Set</span> <span class="dv">2</span> <span class="dt">Null</span> (<span class="dt">Set</span> <span class="dv">3</span>)) (<span class="dt">Set</span> <span class="dv">4</span> (<span class="dt">Set</span> <span class="dv">4</span>) (<span class="dt">Set</span> <span class="dv">5</span>))</code>, which violates the constraint that left child elements must be smaller and right child elements must be greater than the root element (note that repeating an element is one of the ways of violating this contraint). This will break all the operations that we will be defining under the assumption that we are operating on a binary search tree. To prevent this, we will define a new way of constructing sets – adding one element at a time and making sure that it goes to its correct place in the tree.</p>
+<p>But talking about comparing the elements of a set assumes they <em>are</em> comparable – in Haskell, this means they are members of the class <code class="sourceCode haskell"><span class="dt">Ord</span></code>. Under no circumstances do we want to define or use a set of elements that cannot be ordered, so we can enforce this as a constraint in the data declaration itself. To do this, however, we need to enable the <a href="https://en.wikibooks.org/wiki/Haskell/GADT" title="Haskell Wikibook – Generalised Algebraic Datatype" target="_blank">Generalised Algebraic Datatypes</a> (GADTs) language option by adding <code class="sourceCode haskell"><span class="ot">{-# LANGUAGE GADTs -#}</span></code> to the beginning of our source file. Now we rewrite <code class="sourceCode haskell"><span class="dt">Set</span></code> yet again.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Set</span> t <span class="kw">where</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">    <span class="dt">Null</span><span class="ot"> ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">    <span class="dt">Set</span><span class="ot"> ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a></code></pre></div>
+<p>Remember (if you did the exercise) that the <code class="sourceCode haskell"><span class="dt">Set</span></code> constructor is a function of type <code class="sourceCode haskell">t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</code>. Now we have just added the class constraint <code>Ord t</code> to its type signature. If we want to retain the record syntax, we have to rewrite this (one final time).</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">data</span> <span class="dt">Set</span> t <span class="kw">where</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="dt">Null</span><span class="ot"> ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="dt">Set</span><span class="ot"> ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> {</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="ot">        root ::</span> t,</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="ot">        lSet ::</span> <span class="dt">Set</span> t,</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="ot">        rSet ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">    } <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a></code></pre></div>
+<p>Now let us write that function for (correctly) building sets. We could write an <code class="sourceCode haskell">insert</code> function and then to construct the set <span class="math inline">\(\{1,2,3,4,5\}\)</span>, we would have to write<br />
+<code class="sourceCode haskell">insert <span class="dv">1</span> <span class="fu">$</span> insert <span class="dv">2</span> <span class="fu">$</span> insert <span class="dv">3</span> <span class="fu">$</span> insert <span class="dv">4</span> <span class="fu">$</span> insert <span class="dv">5</span> <span class="dt">Null</span></code>.<br />
+Tiresome! (Exercise: Write the expression for the same set assuming that the <em>first</em> argument of <code class="sourceCode haskell">insert</code> is the set and the second one is the element). It's much cleaner to use an operator.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">infixl</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="ot">(&lt;&lt;-) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a></code></pre></div>
+<p>Now <code class="sourceCode haskell"><span class="fu">&lt;&lt;-</span></code> is a left-associative infix operator with fixity <code>5</code>, whose first argument is of type <code class="sourceCode haskell"><span class="dt">Set</span> t</code> and second argument is (an element) of type <code class="sourceCode haskell">t</code>. What should this operator do, for example, if we write <code class="sourceCode haskell">set <span class="fu">&lt;&lt;-</span> n</code> (where <code class="sourceCode haskell">set</code> is some already defined set)? Let's assume that <code class="sourceCode haskell">set <span class="fu">=</span> <span class="dt">Set</span> m left right</code> (i.e., it has root element <code class="sourceCode haskell">m</code>, and left and right children <code class="sourceCode haskell">left</code> and <code class="sourceCode haskell">right</code> respectively). If <code class="sourceCode haskell">n</code> is smaller than <code class="sourceCode haskell">m</code>, then we should insert it in the left child, and if it is greater than <code class="sourceCode haskell">m</code>, we should insert it in the right child. Otherwise, there is nothing to do, it's already in <code class="sourceCode haskell">set</code>. To insert <code class="sourceCode haskell">n</code> in the left or right child, we again use <code class="sourceCode haskell"><span class="fu">&lt;&lt;-</span></code>, of course: <code class="sourceCode haskell">left <span class="fu">&lt;&lt;-</span> n</code> or <code class="sourceCode haskell">right <span class="fu">&lt;&lt;-</span> n</code>. So this function is recursive, and needs a base case. Where does our process (as it is at present) fail? When we reach a set that has no left or right child. That's <code class="sourceCode haskell"><span class="dt">Null</span></code>. So the base case is inserting an element into <code class="sourceCode haskell"><span class="dt">Null</span></code>, and that should obviously give us <code class="sourceCode haskell"><span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></code>. And that's it, we're done! Using pattern matching:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="kw">where</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    (left', right') <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">        <span class="dt">LT</span> <span class="ot">-&gt;</span> (left, right <span class="fu">&lt;&lt;-</span> n)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">        <span class="dt">GT</span> <span class="ot">-&gt;</span> (left <span class="fu">&lt;&lt;-</span> n, right)</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">        <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left, right)</a></code></pre></div>
+<p>Now we can write our earlier example as <code class="sourceCode haskell"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span></code>. So much simpler! But we can't &quot;see&quot; this set because we haven't written a <code class="sourceCode haskell">show</code> function yet. We could derive <code class="sourceCode haskell"><span class="dt">Show</span></code>, but that's not of much use if we want the set to be displayed as <code class="sourceCode haskell">{<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>}</code> (like in math). So we need a clever <code class="sourceCode haskell">show</code> function.</p>
+<p>It must be recursive and the base case is clearly <code class="sourceCode haskell">show <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;{}&quot;</span></code>. Or is it? Remember that a non-empty set can have nodes with <code class="sourceCode haskell"><span class="dt">Null</span></code> children. We don't want these as well to be shown as <code class="sourceCode haskell"><span class="st">&quot;{}&quot;</span></code>. And in a recursive function call, there is no way of telling (without using flags or something similarly ugly), whether the current <code class="sourceCode haskell"><span class="dt">Null</span></code> set is a child of some node or not. So what we will do is have <code class="sourceCode haskell">show</code> call a helper function <code class="sourceCode haskell">show'</code>, which would do the heavy lifting and use recursion, and then insert the output between <code class="sourceCode haskell"><span class="st">&quot;{&quot;</span></code> and <code class="sourceCode haskell"><span class="st">&quot;}&quot;</span></code>. The base case for <code class="sourceCode haskell">show'</code> should take a <code class="sourceCode haskell"><span class="dt">Null</span></code> and return the empty string. And for a non-empty set we have:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1">show' <span class="dt">Set</span> n left right <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a></code></pre></div>
+<p>Does this work? Clearly not, for <code class="sourceCode haskell">show' <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span></code> would be <code class="sourceCode haskell"><span class="st">&quot;,1,&quot;</span></code>. We need to be smarter. When the node has an empty child, we should not add a comma on that side. That becomes three different cases.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1">show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">show' (<span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span>) <span class="fu">=</span> show n</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">show' (<span class="dt">Set</span> n <span class="dt">Null</span> right) <span class="fu">=</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">show' (<span class="dt">Set</span> n left <span class="dt">Null</span>) <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a></code></pre></div>
+<p>There is clearly some repetition of logic here. After all, whether it's on the left or right, a comma is inserted if and only if the tree is non-empty. That is, <code class="sourceCode haskell">comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></code> and <code class="sourceCode haskell">comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></code>. Using this, we can write a much more compact <code class="sourceCode haskell">show'</code>. Also, notice that we are calling <code class="sourceCode haskell">show n</code>, which assumes that <code class="sourceCode haskell">n</code> is a member of <code class="sourceCode haskell"><span class="dt">Show</span></code>. This must be added as a constraint in the type signature.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Set</span> t) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show' set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">        show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">        show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show' right <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">            comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">            comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></a></code></pre></div>
+<p>Let's try this out.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> foldl (<span class="fu">&lt;&lt;-</span>) <span class="dt">Null</span> [<span class="dv">1</span><span class="fu">..</span><span class="dv">10</span>]</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">{<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>}</a></code></pre></div>
+<p>Beautiful!</p>
+<p>The most basic operation (or relation) for sets is membership. And that is easy to define. No element is a member of the empty set. An element is a member of a non-empty set if and only if it is either equal to the root element, or smaller than the root element and a member of the left child, or greater than the root element and a member of the right child (and this is what makes this represention of sets efficient).</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb10-1" data-line-number="1">infix <span class="dv">4</span> <span class="fu">&lt;&lt;=</span></a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="ot">(&lt;&lt;=) ::</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">_ <span class="fu">&lt;&lt;=</span> <span class="dt">Null</span> <span class="fu">=</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">n <span class="fu">&lt;&lt;=</span> (<span class="dt">Set</span> m left right) <span class="fu">=</span> n <span class="fu">==</span> m <span class="fu">||</span> (n <span class="fu">&lt;</span> m <span class="fu">&amp;&amp;</span> n <span class="fu">&lt;&lt;=</span> left) <span class="fu">||</span> (n <span class="fu">&gt;</span> m <span class="fu">&amp;&amp;</span> n <span class="fu">&lt;&lt;=</span> right)</a></code></pre></div>
+<p>Finally, we are ready to define permutations! We will not restrict permutations to arrangements of <span class="math inline">\([n]\)</span> (partly because this is difficult to do, and partly because we will certainly have to revise this definition later). A permutation is just a list then, for a list (in Haskell) is naturally ordered from its first element to its last. But it is a list in which elements do not repeat. So once again, we have to define a type for permutations and then write a function that constructs only valid permutations. To define a permutation, we simply wrap a list in a constructor. Rather than using a data declaration, we will use a <a href="https://wiki.haskell.org/Type#Type_and_newtype" title="HaskellWiki – Type and newtype" target="_blank">newtype</a>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">newtype</span> <span class="dt">Perm</span> t <span class="fu">=</span> <span class="dt">Perm</span> [t] <span class="kw">deriving</span></a></code></pre></div>
+<p>A newtype combines the efficiency of a <code class="sourceCode haskell"><span class="kw">type</span></code> (<code class="sourceCode haskell"><span class="dt">Perm</span></code>s and lists are indistinguishable in memory) with the safety of a data declaration (the wrapper ensures that <code class="sourceCode haskell"><span class="dt">Perm</span></code>s and lists are not interchange in code). And there are some additional benefits.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">newtype</span> <span class="dt">Perm</span> t <span class="fu">=</span> <span class="dt">Perm</span> {<span class="ot">pList ::</span> [t]} <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</a></code></pre></div>
+<p>Now <code class="sourceCode haskell">pList</code> is a function that let's us easily extract the underlying list of a permutation whenever pattern matching is inconvenient, and comparing permutations is equivalent to comparing their underlying lists.</p>
+<p>As in the case of <code class="sourceCode haskell"><span class="dt">Set</span></code>, will write a new, smart constructor to replace <code class="sourceCode haskell"><span class="dt">Perm</span></code>. We do want to construct permutations from lists (anything else would be too tedious), but we will have to discard any repetitions. So we read in the elements of the list one by one, and add it to the permutation only if it is not already present. In fact, we can first write a function to do this (safe) element addition, and use it repeatedly to construct a permutation from a list</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="ot">permIns ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> <span class="dt">Perm</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb13-2" data-line-number="2">permIns (<span class="dt">Perm</span> ps) n</a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">    <span class="fu">|</span> n <span class="ot">`elem`</span> ps <span class="fu">=</span> <span class="dt">Perm</span> ps</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">    <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Perm</span> (n<span class="fu">:</span>ps)</a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="ot">perm ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> [t] <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb13-7" data-line-number="7">perm <span class="fu">=</span> <span class="dt">Perm</span> <span class="fu">.</span> reverse <span class="fu">.</span> pList <span class="fu">.</span> foldl permIns (<span class="dt">Perm</span> [])</a></code></pre></div>
+<p>In <code class="sourceCode haskell">permIns</code>, we use <code class="sourceCode haskell">elem</code> for lists (<code class="sourceCode haskell">ps</code> is the underlying list of the permutation we are constructing), because even though <code class="sourceCode haskell"><span class="fu">&lt;&lt;=</span></code> for sets is more efficient on the average when we have to repeatedly search an existing set, <em>constructing</em> a set by adding elements one at a time is inefficient compared to constructing a list in the same way – adding an element to the head of a list is done in constant time, whereas inserting an element into a set (a binary search tree) can take linear time in the worst case. Again, in the interest of efficiency, <code class="sourceCode haskell">permIns</code> adds the element at the head of the permutation (list), which makes it necessary to reverse the final permutation in <code class="sourceCode haskell">perm</code>.</p>
+<p>We have defined and constructed permutations, now all that remains is to generate <span class="math inline">\(n\)</span>-permutations. There are some clever an relatively efficient algorithms to do this, but we will brute force it for now. The key idea in <em>generating</em> all permutations (naïvely) can be obtained by looking at the recurrence relation for <em>counting</em> all permutations. Indeed, this is generally true in all of combinatorics.</p>
+<p>The total number of <span class="math inline">\(n\)</span>-permutations is <span class="math inline">\(n\)</span> times the total number of <span class="math inline">\((n - 1)\)</span>-permutations: <span class="math inline">\(n! = n(n - 1)!\)</span>. The idea this gives is this:</p>
+<blockquote>
+<p>Suppose we have all the <span class="math inline">\((n - 1)!\)</span> permutations of a set of <span class="math inline">\(n - 1\)</span> objects. If we now add an <nobr><span class="math inline">\(n\)</span><sup>th</sup></nobr> element to this set, then in order to get all of their <span class="math inline">\(n!\)</span> permutations, we must somehow generate <span class="math inline">\(n\)</span> permutations from <em>each</em> of the <span class="math inline">\((n - 1)!\)</span> permutations of the smaler set (so that <span class="math inline">\(n \times (n - 1)! = n!\)</span>).</p>
+</blockquote>
+<p>But we do already know how we can generate those <span class="math inline">\(n\)</span> <span class="math inline">\(n\)</span>-permutations corresponding to each <span class="math inline">\((n-1)\)</span>-permutation (for that is how we know the reccurence relation in the first place!). From each <span class="math inline">\((n-1)\)</span>-permutation, we can get an <span class="math inline">\(n\)</span>-permutation by inserting the new element somewhere in the <span class="math inline">\((n-1)\)</span>-permutation. How many choices of places are there for inserting the element? There are <span class="math inline">\(n - 2\)</span> places <em>between</em> the <span class="math inline">\(n - 1\)</span> objects, and there are two more places (extreme left and extreme right), so the answer is <span class="math inline">\(n\)</span>. And this is precisely how we will generate the permutations too!</p>
+<p>Our <code class="sourceCode haskell">perms</code> function will take a set as input, convert it to a list (guaranteed to have no repeated elements) and pass this to a helper function <code class="sourceCode haskell">perms'</code> (since it is more convenient to work with lists and avoid having to unwrap permutations all the time). The output of the helper function will be a list of lists, so <code class="sourceCode haskell">perms</code> will also have to wrap each permutation in <code class="sourceCode haskell"><span class="dt">Perm</span></code> and finally return a list of permutations.</p>
+<p>In defining <code class="sourceCode haskell">perms'</code>, the helper function, the main difficulty seems to be in inserting the new element in all possible positions in the <span class="math inline">\((n-1)\)</span>-permutation. This can be broken down into two logical steps. First, we <em>tear apart</em> a given list (the <span class="math inline">\((n-1)\)</span>-permutation) into two parts in <strong>all possible ways</strong>. Then we join (concatenate) the two parts, but <em>place the new element in between first</em>. Concatenation of lists is easily done in Haskell, but although we could use <code class="sourceCode haskell">take</code> and <code class="sourceCode haskell">drop</code> to tear apart a list, it is more efficient to do this recursively and avoid performing the same operation twice. So we will write another helper function <code class="sourceCode haskell">lisa</code> to tear the list apart.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="ot">perms ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [<span class="dt">Perm</span> t]</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms' [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">    perms' ps [] <span class="fu">=</span> ps</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">    perms' ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms'</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">        [first <span class="fu">++</span> [n] <span class="fu">++</span> rest <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> foldr (<span class="fu">++</span>) [] <span class="fu">$</span> map lisa ps]</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">        ns</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7">    lisa [] <span class="fu">=</span> [([], [])]</a>
+<a class="sourceLine" id="cb14-8" data-line-number="8">    lisa (p<span class="fu">:</span>ps) <span class="fu">=</span> ([], p<span class="fu">:</span>ps) <span class="fu">:</span> [(p<span class="fu">:</span>first, rest) <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> lisa ps]</a></code></pre></div>
+<p>The argument <code class="sourceCode haskell">ps</code> is an accumulator (that stores all permutations generated so far). Then <code class="sourceCode haskell">lisa</code> <code class="sourceCode haskell">map</code>ped over them tears each one apart in all possible ways (generating a list of list of list-tuples, which has to be folded once to give us back a list of list-tuples). And then we stitch the list-tuples back together but with the new element in between, and this is our new accumulator.</p>
+<p>Let's write a <code class="sourceCode haskell">show</code> function for permutations and then test this!</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Perm</span> t) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2">    show <span class="fu">=</span> show <span class="fu">.</span> pList</a></code></pre></div>
+<p>Well, that was easy. Here we go then…</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="dt">Prelude</span><span class="fu">&gt;</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">[[<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>],[<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">1</span>],[<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">3</span>],[<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">2</span>],[<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">2</span>],[<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>]]</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3"><span class="fu">*</span><span class="dt">Prelude</span><span class="fu">&gt;</span> length <span class="fu">$</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span></a>
+<a class="sourceLine" id="cb16-4" data-line-number="4"><span class="dv">24</span></a>
+<a class="sourceLine" id="cb16-5" data-line-number="5"><span class="fu">*</span><span class="dt">Prelude</span><span class="fu">&gt;</span> length <span class="fu">$</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span></a>
+<a class="sourceLine" id="cb16-6" data-line-number="6"><span class="dv">120</span></a>
+<a class="sourceLine" id="cb16-7" data-line-number="7"><span class="fu">*</span><span class="dt">Prelude</span><span class="fu">&gt;</span> length <span class="fu">$</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span> <span class="dv">6</span></a>
+<a class="sourceLine" id="cb16-8" data-line-number="8"><span class="dv">720</span></a>
+<a class="sourceLine" id="cb16-9" data-line-number="9"><span class="fu">*</span><span class="dt">Prelude</span><span class="fu">&gt;</span> length <span class="fu">$</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span> <span class="dv">6</span> <span class="fu">&lt;&lt;-</span> <span class="dv">7</span></a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"><span class="dv">5040</span></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="fu">*</span><span class="dt">Prelude</span><span class="fu">&gt;</span> length <span class="fu">$</span> perms <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span> <span class="dv">6</span> <span class="fu">&lt;&lt;-</span> <span class="dv">7</span> <span class="fu">&lt;&lt;-</span> <span class="dv">8</span></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12"><span class="dv">40320</span></a></code></pre></div>
+<p>And that gives us a tiny verification of the <a href="#prop:n-permutations">proposition</a>.</p>
+<p>Here is the entire <a href="https://github.com/VynM/Comutations/blob/master/haskode/src/M0Introduction.hs" title="GitHub – M0Introduction.hs" target="_blank">module</a>, with some more operations on sets and permutations.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="ot">{-# LANGUAGE GADTs, StandaloneDeriving #-}</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3"><span class="kw">module</span> <span class="dt">M0Introduction</span> (<span class="dt">Set</span>(<span class="dt">Null</span>), (<span class="fu">&lt;&lt;=</span>), (<span class="fu">&lt;&lt;</span>), (<span class="fu">&lt;&lt;-</span>), (<span class="ot">-&gt;</span><span class="fu">&gt;</span>), (<span class="fu">&lt;+&gt;</span>), (<span class="fu">&lt;**&gt;</span>),</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">                       setMap, card, setFoldl, setFoldr, setZipWith, setMin, setMax, listToSet, setToList, setToList', </a>
+<a class="sourceLine" id="cb17-5" data-line-number="5">                       atom, consInts, finNats, nats,</a>
+<a class="sourceLine" id="cb17-6" data-line-number="6">                       perm, pList, permIns, revPerm, addPerms, perms, permSet) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb17-8" data-line-number="8"><span class="kw">data</span> <span class="dt">Set</span> t <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-9" data-line-number="9">   <span class="dt">Null</span><span class="ot"> ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-10" data-line-number="10">   <span class="dt">Set</span><span class="ot"> ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> {</a>
+<a class="sourceLine" id="cb17-11" data-line-number="11"><span class="ot">       root ::</span> t,</a>
+<a class="sourceLine" id="cb17-12" data-line-number="12"><span class="ot">       lSet ::</span> <span class="dt">Set</span> t,</a>
+<a class="sourceLine" id="cb17-13" data-line-number="13"><span class="ot">       rSet ::</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-14" data-line-number="14">   } <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb17-16" data-line-number="16"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Set</span> t) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-17" data-line-number="17">   show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show' set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-18" data-line-number="18">       show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb17-19" data-line-number="19">       show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show' right <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-20" data-line-number="20">           comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb17-21" data-line-number="21">           comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></a>
+<a class="sourceLine" id="cb17-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb17-23" data-line-number="23"><span class="co">-- Set membership</span></a>
+<a class="sourceLine" id="cb17-24" data-line-number="24">infix <span class="dv">4</span> <span class="fu">&lt;&lt;=</span></a>
+<a class="sourceLine" id="cb17-25" data-line-number="25"><span class="ot">(&lt;&lt;=) ::</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb17-26" data-line-number="26">_ <span class="fu">&lt;&lt;=</span> <span class="dt">Null</span> <span class="fu">=</span> <span class="dt">False</span></a>
+<a class="sourceLine" id="cb17-27" data-line-number="27">n <span class="fu">&lt;&lt;=</span> (<span class="dt">Set</span> m left right) <span class="fu">=</span> n <span class="fu">==</span> m <span class="fu">||</span> (n <span class="fu">&lt;</span> m <span class="fu">&amp;&amp;</span> n <span class="fu">&lt;&lt;=</span> left) <span class="fu">||</span> (n <span class="fu">&gt;</span> m <span class="fu">&amp;&amp;</span> n <span class="fu">&lt;&lt;=</span> right)</a>
+<a class="sourceLine" id="cb17-28" data-line-number="28"></a>
+<a class="sourceLine" id="cb17-29" data-line-number="29"><span class="co">-- Subset</span></a>
+<a class="sourceLine" id="cb17-30" data-line-number="30">infix <span class="dv">4</span> <span class="fu">&lt;&lt;</span></a>
+<a class="sourceLine" id="cb17-31" data-line-number="31"><span class="ot">(&lt;&lt;) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Bool</span></a>
+<a class="sourceLine" id="cb17-32" data-line-number="32"><span class="dt">Null</span> <span class="fu">&lt;&lt;</span> _ <span class="fu">=</span> <span class="dt">True</span></a>
+<a class="sourceLine" id="cb17-33" data-line-number="33"><span class="dt">Set</span> n left right <span class="fu">&lt;&lt;</span> mset <span class="fu">=</span> n <span class="fu">&lt;&lt;=</span> mset <span class="fu">&amp;&amp;</span> left <span class="fu">&lt;&lt;</span> mset <span class="fu">&amp;&amp;</span> right <span class="fu">&lt;&lt;</span> mset</a>
+<a class="sourceLine" id="cb17-34" data-line-number="34"></a>
+<a class="sourceLine" id="cb17-35" data-line-number="35"><span class="co">-- Set equality</span></a>
+<a class="sourceLine" id="cb17-36" data-line-number="36"><span class="kw">instance</span> <span class="dt">Eq</span> (<span class="dt">Set</span> t) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-37" data-line-number="37">   mset <span class="fu">==</span> nset <span class="fu">=</span> mset <span class="fu">&lt;&lt;</span> nset <span class="fu">&amp;&amp;</span> nset <span class="fu">&lt;&lt;</span> mset</a>
+<a class="sourceLine" id="cb17-38" data-line-number="38"></a>
+<a class="sourceLine" id="cb17-39" data-line-number="39"><span class="kw">deriving</span> <span class="kw">instance</span> <span class="dt">Ord</span> (<span class="dt">Set</span> t)</a>
+<a class="sourceLine" id="cb17-40" data-line-number="40"></a>
+<a class="sourceLine" id="cb17-41" data-line-number="41"><span class="co">-- Insert into set</span></a>
+<a class="sourceLine" id="cb17-42" data-line-number="42"><span class="kw">infixl</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span></a>
+<a class="sourceLine" id="cb17-43" data-line-number="43"><span class="ot">(&lt;&lt;-) ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-44" data-line-number="44"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-45" data-line-number="45"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-46" data-line-number="46">   (left', right') <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-47" data-line-number="47">       <span class="dt">LT</span> <span class="ot">-&gt;</span> (left, right <span class="fu">&lt;&lt;-</span> n)</a>
+<a class="sourceLine" id="cb17-48" data-line-number="48">       <span class="dt">GT</span> <span class="ot">-&gt;</span> (left <span class="fu">&lt;&lt;-</span> n, right)</a>
+<a class="sourceLine" id="cb17-49" data-line-number="49">       <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left, right)</a>
+<a class="sourceLine" id="cb17-50" data-line-number="50"></a>
+<a class="sourceLine" id="cb17-51" data-line-number="51"><span class="co">-- Delete from set</span></a>
+<a class="sourceLine" id="cb17-52" data-line-number="52"><span class="kw">infixl</span> <span class="dv">5</span> <span class="ot">-&gt;</span><span class="fu">&gt;</span></a>
+<a class="sourceLine" id="cb17-53" data-line-number="53"><span class="ot">(-&gt;&gt;) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-54" data-line-number="54"><span class="dt">Null</span> <span class="ot">-&gt;</span><span class="fu">&gt;</span> n <span class="fu">=</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-55" data-line-number="55">(<span class="dt">Set</span> m left right) <span class="ot">-&gt;</span><span class="fu">&gt;</span> n</a>
+<a class="sourceLine" id="cb17-56" data-line-number="56">   <span class="fu">|</span> m <span class="fu">&lt;</span> n <span class="fu">=</span> <span class="dt">Set</span> m left (right <span class="ot">-&gt;</span><span class="fu">&gt;</span> n)</a>
+<a class="sourceLine" id="cb17-57" data-line-number="57">   <span class="fu">|</span> m <span class="fu">&gt;</span> n <span class="fu">=</span> <span class="dt">Set</span> m (left <span class="ot">-&gt;</span><span class="fu">&gt;</span> n) right</a>
+<a class="sourceLine" id="cb17-58" data-line-number="58">   <span class="fu">|</span> otherwise <span class="fu">=</span> left <span class="fu">&lt;+&gt;</span> right</a>
+<a class="sourceLine" id="cb17-59" data-line-number="59"></a>
+<a class="sourceLine" id="cb17-60" data-line-number="60"><span class="co">-- Set union</span></a>
+<a class="sourceLine" id="cb17-61" data-line-number="61"><span class="kw">infixl</span> <span class="dv">5</span> <span class="fu">&lt;+&gt;</span></a>
+<a class="sourceLine" id="cb17-62" data-line-number="62"><span class="ot">(&lt;+&gt;) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-63" data-line-number="63"><span class="dt">Null</span> <span class="fu">&lt;+&gt;</span> set <span class="fu">=</span> set</a>
+<a class="sourceLine" id="cb17-64" data-line-number="64">set <span class="fu">&lt;+&gt;</span> <span class="dt">Null</span> <span class="fu">=</span> set</a>
+<a class="sourceLine" id="cb17-65" data-line-number="65">(<span class="dt">Set</span> m left1 right1) <span class="fu">&lt;+&gt;</span> (<span class="dt">Set</span> n left2 right2) <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="fu">&lt;+&gt;</span> res <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-66" data-line-number="66">   (left', right', res) <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-67" data-line-number="67">       <span class="dt">LT</span> <span class="ot">-&gt;</span> (left1, right1 <span class="fu">&lt;+&gt;</span> right2 <span class="fu">&lt;&lt;-</span> n, left2)</a>
+<a class="sourceLine" id="cb17-68" data-line-number="68">       <span class="dt">GT</span> <span class="ot">-&gt;</span> (left1 <span class="fu">&lt;+&gt;</span> left2 <span class="fu">&lt;&lt;-</span> n, right1, right2)</a>
+<a class="sourceLine" id="cb17-69" data-line-number="69">       <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left1 <span class="fu">&lt;+&gt;</span> left2, right1 <span class="fu">&lt;+&gt;</span> right2, <span class="dt">Null</span>)</a>
+<a class="sourceLine" id="cb17-70" data-line-number="70"></a>
+<a class="sourceLine" id="cb17-71" data-line-number="71"><span class="co">-- Set transformation by unary function applied to all elements</span></a>
+<a class="sourceLine" id="cb17-72" data-line-number="72"><span class="ot">setMap ::</span> (<span class="dt">Ord</span> a, <span class="dt">Ord</span> b) <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">Set</span> a <span class="ot">-&gt;</span> <span class="dt">Set</span> b</a>
+<a class="sourceLine" id="cb17-73" data-line-number="73">setMap _ <span class="dt">Null</span> <span class="fu">=</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-74" data-line-number="74">setMap f (<span class="dt">Set</span> n left right) <span class="fu">=</span> <span class="dt">Set</span> (f n) (setMap f left) (setMap f right)</a>
+<a class="sourceLine" id="cb17-75" data-line-number="75"></a>
+<a class="sourceLine" id="cb17-76" data-line-number="76"><span class="co">-- Set Cartesian product</span></a>
+<a class="sourceLine" id="cb17-77" data-line-number="77"><span class="kw">infixl</span> <span class="dv">6</span> <span class="fu">&lt;**&gt;</span></a>
+<a class="sourceLine" id="cb17-78" data-line-number="78"><span class="ot">(&lt;**&gt;) ::</span> (<span class="dt">Ord</span> a, <span class="dt">Ord</span> b) <span class="ot">=&gt;</span> <span class="dt">Set</span> a <span class="ot">-&gt;</span> <span class="dt">Set</span> b <span class="ot">-&gt;</span> <span class="dt">Set</span> (a, b)</a>
+<a class="sourceLine" id="cb17-79" data-line-number="79"><span class="dt">Null</span> <span class="fu">&lt;**&gt;</span> _ <span class="fu">=</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-80" data-line-number="80"><span class="dt">Set</span> m left right <span class="fu">&lt;**&gt;</span> nset <span class="fu">=</span> setMap (\n <span class="ot">-&gt;</span> (m, n)) nset <span class="fu">&lt;+&gt;</span> left <span class="fu">&lt;**&gt;</span> nset <span class="fu">&lt;+&gt;</span> right <span class="fu">&lt;**&gt;</span> nset</a>
+<a class="sourceLine" id="cb17-81" data-line-number="81"></a>
+<a class="sourceLine" id="cb17-82" data-line-number="82"><span class="co">-- Set cardinality</span></a>
+<a class="sourceLine" id="cb17-83" data-line-number="83"><span class="ot">card ::</span> <span class="dt">Integral</span> i <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> i</a>
+<a class="sourceLine" id="cb17-84" data-line-number="84">card <span class="dt">Null</span> <span class="fu">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb17-85" data-line-number="85">card (<span class="dt">Set</span> n left right) <span class="fu">=</span> <span class="dv">1</span> <span class="fu">+</span> card left <span class="fu">+</span> card right</a>
+<a class="sourceLine" id="cb17-86" data-line-number="86"></a>
+<a class="sourceLine" id="cb17-87" data-line-number="87"><span class="co">-- Set left fold</span></a>
+<a class="sourceLine" id="cb17-88" data-line-number="88"><span class="ot">setFoldl ::</span> (a <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb17-89" data-line-number="89">setFoldl _ seed <span class="dt">Null</span> <span class="fu">=</span> seed</a>
+<a class="sourceLine" id="cb17-90" data-line-number="90">setFoldl f seed (<span class="dt">Set</span> n left right) <span class="fu">=</span> setFoldl f (setFoldl f seed left <span class="ot">`f`</span> n) right</a>
+<a class="sourceLine" id="cb17-91" data-line-number="91"></a>
+<a class="sourceLine" id="cb17-92" data-line-number="92"><span class="co">-- Set right fold</span></a>
+<a class="sourceLine" id="cb17-93" data-line-number="93"><span class="ot">setFoldr ::</span> (t <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> a</a>
+<a class="sourceLine" id="cb17-94" data-line-number="94">setFoldr _ seed <span class="dt">Null</span> <span class="fu">=</span> seed</a>
+<a class="sourceLine" id="cb17-95" data-line-number="95">setFoldr f seed (<span class="dt">Set</span> n left right) <span class="fu">=</span> setFoldr f (n <span class="ot">`f`</span> setFoldr f seed right) left</a>
+<a class="sourceLine" id="cb17-96" data-line-number="96"></a>
+<a class="sourceLine" id="cb17-97" data-line-number="97"><span class="co">-- Set Cartesian product with binary operation applied to tuples</span></a>
+<a class="sourceLine" id="cb17-98" data-line-number="98"><span class="ot">setZipWith ::</span> (<span class="dt">Ord</span> a, <span class="dt">Ord</span> b, <span class="dt">Ord</span> c) <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> <span class="dt">Set</span> a <span class="ot">-&gt;</span> <span class="dt">Set</span> b <span class="ot">-&gt;</span> <span class="dt">Set</span> c</a>
+<a class="sourceLine" id="cb17-99" data-line-number="99">setZipWith op mset nset <span class="fu">=</span> setMap (\(m,n) <span class="ot">-&gt;</span> op m n) <span class="fu">$</span> mset <span class="fu">&lt;**&gt;</span> nset</a>
+<a class="sourceLine" id="cb17-100" data-line-number="100"></a>
+<a class="sourceLine" id="cb17-101" data-line-number="101"><span class="co">-- Least element of a set</span></a>
+<a class="sourceLine" id="cb17-102" data-line-number="102"><span class="ot">setMin ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Maybe</span> t</a>
+<a class="sourceLine" id="cb17-103" data-line-number="103">setMin <span class="dt">Null</span> <span class="fu">=</span> <span class="dt">Nothing</span></a>
+<a class="sourceLine" id="cb17-104" data-line-number="104">setMin (<span class="dt">Set</span> n left _) <span class="fu">=</span> <span class="kw">case</span> setMin left <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-105" data-line-number="105">   <span class="dt">Just</span> m <span class="ot">-&gt;</span> <span class="dt">Just</span> m</a>
+<a class="sourceLine" id="cb17-106" data-line-number="106">   <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> n</a>
+<a class="sourceLine" id="cb17-107" data-line-number="107"></a>
+<a class="sourceLine" id="cb17-108" data-line-number="108"><span class="co">-- Greatest element of a set</span></a>
+<a class="sourceLine" id="cb17-109" data-line-number="109"><span class="ot">setMax ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Maybe</span> t</a>
+<a class="sourceLine" id="cb17-110" data-line-number="110">setMax <span class="dt">Null</span> <span class="fu">=</span> <span class="dt">Nothing</span></a>
+<a class="sourceLine" id="cb17-111" data-line-number="111">setMax (<span class="dt">Set</span> n _ right) <span class="fu">=</span> <span class="kw">case</span> setMax right <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-112" data-line-number="112">   <span class="dt">Just</span> m <span class="ot">-&gt;</span> <span class="dt">Just</span> m</a>
+<a class="sourceLine" id="cb17-113" data-line-number="113">   <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> n</a>
+<a class="sourceLine" id="cb17-114" data-line-number="114"></a>
+<a class="sourceLine" id="cb17-115" data-line-number="115"><span class="co">-- List to set conversion</span></a>
+<a class="sourceLine" id="cb17-116" data-line-number="116"><span class="ot">listToSet ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> [t] <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-117" data-line-number="117">listToSet <span class="fu">=</span> foldr (\n set <span class="ot">-&gt;</span> set <span class="fu">&lt;&lt;-</span> n) <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-118" data-line-number="118"></a>
+<a class="sourceLine" id="cb17-119" data-line-number="119"><span class="co">-- Set to list conversion using right fold</span></a>
+<a class="sourceLine" id="cb17-120" data-line-number="120"><span class="ot">setToList ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [t]</a>
+<a class="sourceLine" id="cb17-121" data-line-number="121">setToList <span class="fu">=</span> setFoldr (<span class="fu">:</span>) []</a>
+<a class="sourceLine" id="cb17-122" data-line-number="122"></a>
+<a class="sourceLine" id="cb17-123" data-line-number="123"><span class="co">-- Set to list conversion using left fold</span></a>
+<a class="sourceLine" id="cb17-124" data-line-number="124"><span class="ot">setToList' ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [t]</a>
+<a class="sourceLine" id="cb17-125" data-line-number="125">setToList' <span class="fu">=</span> setFoldl (\list n <span class="ot">-&gt;</span> n<span class="fu">:</span>list) []</a>
+<a class="sourceLine" id="cb17-126" data-line-number="126"></a>
+<a class="sourceLine" id="cb17-127" data-line-number="127"><span class="co">-- Singleton set</span></a>
+<a class="sourceLine" id="cb17-128" data-line-number="128"><span class="ot">atom ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
+<a class="sourceLine" id="cb17-129" data-line-number="129">atom n <span class="fu">=</span> <span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-130" data-line-number="130"></a>
+<a class="sourceLine" id="cb17-131" data-line-number="131"><span class="co">-- Set of consecutive integers</span></a>
+<a class="sourceLine" id="cb17-132" data-line-number="132"><span class="ot">consInts ::</span> <span class="dt">Integral</span> i <span class="ot">=&gt;</span> i <span class="ot">-&gt;</span> i <span class="ot">-&gt;</span> <span class="dt">Set</span> i</a>
+<a class="sourceLine" id="cb17-133" data-line-number="133">consInts a b</a>
+<a class="sourceLine" id="cb17-134" data-line-number="134">   <span class="fu">|</span> b <span class="fu">&lt;</span> a <span class="fu">=</span> <span class="dt">Null</span></a>
+<a class="sourceLine" id="cb17-135" data-line-number="135">   <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Set</span> m (consInts a (m <span class="fu">-</span> <span class="dv">1</span>)) (consInts (m <span class="fu">+</span> <span class="dv">1</span>) b) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-136" data-line-number="136">       m <span class="fu">=</span> div (a <span class="fu">+</span> b) <span class="dv">2</span></a>
+<a class="sourceLine" id="cb17-137" data-line-number="137"></a>
+<a class="sourceLine" id="cb17-138" data-line-number="138"><span class="co">-- Set of first n naturals</span></a>
+<a class="sourceLine" id="cb17-139" data-line-number="139"><span class="ot">finNats ::</span> <span class="dt">Integral</span> i <span class="ot">=&gt;</span> i <span class="ot">-&gt;</span> <span class="dt">Set</span> i</a>
+<a class="sourceLine" id="cb17-140" data-line-number="140">finNats <span class="fu">=</span> consInts <span class="dv">1</span></a>
+<a class="sourceLine" id="cb17-141" data-line-number="141"></a>
+<a class="sourceLine" id="cb17-142" data-line-number="142"><span class="co">-- Set of all naturals</span></a>
+<a class="sourceLine" id="cb17-143" data-line-number="143"><span class="ot">nats ::</span> <span class="dt">Integral</span> i <span class="ot">=&gt;</span> <span class="dt">Set</span> i</a>
+<a class="sourceLine" id="cb17-144" data-line-number="144">nats <span class="fu">=</span> <span class="dt">Set</span> <span class="dv">1</span> <span class="dt">Null</span> (setMap (<span class="fu">+</span><span class="dv">1</span>) nats)</a>
+<a class="sourceLine" id="cb17-145" data-line-number="145"></a>
+<a class="sourceLine" id="cb17-146" data-line-number="146"><span class="kw">newtype</span> <span class="dt">Perm</span> t <span class="fu">=</span> <span class="dt">Perm</span> {<span class="ot">pList ::</span> [t]} <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</a>
+<a class="sourceLine" id="cb17-147" data-line-number="147"></a>
+<a class="sourceLine" id="cb17-148" data-line-number="148"><span class="co">-- Insert into permutation</span></a>
+<a class="sourceLine" id="cb17-149" data-line-number="149"><span class="ot">permIns ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> <span class="dt">Perm</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb17-150" data-line-number="150">permIns (<span class="dt">Perm</span> ps) n</a>
+<a class="sourceLine" id="cb17-151" data-line-number="151">   <span class="fu">|</span> n <span class="ot">`elem`</span> ps <span class="fu">=</span> <span class="dt">Perm</span> ps</a>
+<a class="sourceLine" id="cb17-152" data-line-number="152">   <span class="fu">|</span> otherwise <span class="fu">=</span> <span class="dt">Perm</span> (n<span class="fu">:</span>ps)</a>
+<a class="sourceLine" id="cb17-153" data-line-number="153"></a>
+<a class="sourceLine" id="cb17-154" data-line-number="154"><span class="co">-- Safe permutation constructor</span></a>
+<a class="sourceLine" id="cb17-155" data-line-number="155"><span class="ot">perm ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> [t] <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb17-156" data-line-number="156">perm <span class="fu">=</span> <span class="dt">Perm</span> <span class="fu">.</span> reverse <span class="fu">.</span> pList <span class="fu">.</span> foldl permIns (<span class="dt">Perm</span> [])</a>
+<a class="sourceLine" id="cb17-157" data-line-number="157"></a>
+<a class="sourceLine" id="cb17-158" data-line-number="158"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Perm</span> t) <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-159" data-line-number="159">   show <span class="fu">=</span> show <span class="fu">.</span> pList</a>
+<a class="sourceLine" id="cb17-160" data-line-number="160"></a>
+<a class="sourceLine" id="cb17-161" data-line-number="161"><span class="co">-- Reverse of a permutation</span></a>
+<a class="sourceLine" id="cb17-162" data-line-number="162"><span class="ot">revPerm ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> <span class="dt">Perm</span> t <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb17-163" data-line-number="163">revPerm <span class="fu">=</span> <span class="dt">Perm</span> <span class="fu">.</span> reverse <span class="fu">.</span> pList</a>
+<a class="sourceLine" id="cb17-164" data-line-number="164"></a>
+<a class="sourceLine" id="cb17-165" data-line-number="165"><span class="co">-- Safe concatenation of permutations</span></a>
+<a class="sourceLine" id="cb17-166" data-line-number="166"><span class="ot">addPerms ::</span> <span class="dt">Eq</span> t <span class="ot">=&gt;</span> <span class="dt">Perm</span> t <span class="ot">-&gt;</span> <span class="dt">Perm</span> t <span class="ot">-&gt;</span> <span class="dt">Perm</span> t</a>
+<a class="sourceLine" id="cb17-167" data-line-number="167">addPerms (<span class="dt">Perm</span> ps) qperm <span class="fu">=</span> foldl (permIns) qperm <span class="fu">$</span> reverse ps</a>
+<a class="sourceLine" id="cb17-168" data-line-number="168"></a>
+<a class="sourceLine" id="cb17-169" data-line-number="169"><span class="co">-- List of all permutations of a set</span></a>
+<a class="sourceLine" id="cb17-170" data-line-number="170"><span class="ot">perms ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [<span class="dt">Perm</span> t]</a>
+<a class="sourceLine" id="cb17-171" data-line-number="171">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms' [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-172" data-line-number="172">   perms' ps [] <span class="fu">=</span> ps</a>
+<a class="sourceLine" id="cb17-173" data-line-number="173">   perms' ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms' [first <span class="fu">++</span> [n] <span class="fu">++</span> rest <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> foldr (<span class="fu">++</span>) [] <span class="fu">$</span> map lisa ps] ns</a>
+<a class="sourceLine" id="cb17-174" data-line-number="174">   lisa [] <span class="fu">=</span> [([], [])]</a>
+<a class="sourceLine" id="cb17-175" data-line-number="175">   lisa (p<span class="fu">:</span>ps) <span class="fu">=</span> ([], p<span class="fu">:</span>ps) <span class="fu">:</span> [(p<span class="fu">:</span>first, rest) <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> lisa ps]</a>
+<a class="sourceLine" id="cb17-176" data-line-number="176"></a>
+<a class="sourceLine" id="cb17-177" data-line-number="177"><span class="co">-- Set of all permutations of a set</span></a>
+<a class="sourceLine" id="cb17-178" data-line-number="178"><span class="ot">permSet ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> (<span class="dt">Set</span> t) <span class="ot">-&gt;</span> <span class="dt">Set</span> (<span class="dt">Perm</span> t)</a>
+<a class="sourceLine" id="cb17-179" data-line-number="179">permSet <span class="fu">=</span> listToSet <span class="fu">.</span> perms</a></code></pre></div>
+<p>While exporting the module, we hide the unsafe constructors <code class="sourceCode haskell"><span class="dt">Set</span></code> and <code class="sourceCode haskell"><span class="dt">Perm</span></code>.</p>
+    </section>
+</article>
+
+    <p><Br /></p><hr>
+    <div class="comments">    
+    <header class="comments">DISQUSsion</header>
+    Thoughts, suggestions, questions, criticism…<P></P>
+    <span class="note">
+            <header>Note</header>
+            You can use <a href="https://help.disqus.com/commenting/what-html-tags-are-allowed-within-comments" title="Disqus – HTML Tags" target="_blank">HTML tags and syntax highlighting</a> in your comments.
+            To get syntax highlighting, use
+            <div>
+                <div style="z-index:0; position:absolute; vertical-align: middle; opacity:0;"><input type="text" value="<pre><code class='haskell'> </code></pre>" id="codeText" style="height: 1px;"></div>
+                <div style="z-index:1; position:relative">
+                <pre><code class="sourceCode HTML">&lt;pre&gt;&lt;code class='haskell'&gt; &lt;/code&gt;&lt;/pre&gt;</code> <a title="Copy to clipboard" onclick="copyCode()" class="copyCode"><i class="fa fa-clipboard" aria-hidden="true"></i></a></pre>
+                </div>
+            </div>
+            <script>
+                function copyCode() {
+                    var codeTag = document.getElementById("codeText");
+                    codeTag.select();
+                    document.execCommand("copy");
+                }
+            </script>
+            (just copy and paste the above, and insert your code between the <code>code</code> tags). Unfortunately, <a href="https://stackoverflow.com/a/18158057/9530197" title="Stack Overflow Answer" target="_blank">Disqus does not presently support MathJax</a>. So we have to either use <a href="http://mathb.in/" title="MathBin" target="_blank">a math pastebin</a>, or just type \(\LaTeX\) code and hope everyone can read it, or…
+<pre><a href="https://github.com/GodotMisogi/math-notes/tree/master/Hopf%20Algebra%20and%20Combinatorics" title="Universal Property of Tensor Products" target="_blank">  V×W-ϕ->V⊗W
+    \     |
+    y\    |ỹ
+      \   |
+        ↘ ↓
+         L</a></pre>
+use ASCII math?!
+    </span>
+    <P></P>
+    <div id="disqus_thread"></div>
+    </div>
+    
+    <script>
+    /**
+    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+    
+    var disqus_config = function () {
+    this.page.url = 'https://vynm.github.io/Comutations/'+'/posts/2018-05-25-00Introduction.html';  // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = 'Introduction+May 25, 2018'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://comutations.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+     
+    <script id="dsq-count-scr" src="//comutations.disqus.com/count.js" async></script>
+                <nav><div id="mySidenav" class="sidenav" style="margin-left:0%">
+        <a id="btnNav" class="closebtn" title="Show/Hide Contents" style="cursor: pointer;">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+        </a>
+        <div class="contentsbar"><div class="contentslist">
+            
+            <a href="../posts/2018-05-25-00Introduction.html">
+                <div class="postname">Introduction</div>
+            </a>
+            
+        </div></div>
+    </div>
+
+    <script>
+    document.getElementById("btnNav").onclick = function() {
+        document.getElementById("mySidenav").classList.toggle("open");
+        document.getElementById("btnNav").classList.toggle("change");
+
+    }
+    </script></nav>
+        </div>
+        <nav>
+        <div class="rightContainer"><div class="right"><div class="iconset">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+            <a href="../" class="homeLink">
+                <i title="Home" arial-label="Home" class="fa fa-home" aria-hidden="true" role="img"></i>
+            </a><a href="../about.html" class="abLink">
+                <i title="About" aria-label="About" class="fa fa-info" aria-hidden="true" role="img"></i>
+            </a>
+            <a href="../contents.html" class="ctsLink">
+                <i title="Contents" aria-label="Contents" class="fa fa-list" aria-hidden="true" role="img"></i>
+            </a>
+            <div class="contact">
+                <a href="https://github.com/VynM" target="_blank" class="ghLink">
+                    <i title="GitHub" aria-label="GitHub" class="fa fa-github" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="https://stackexchange.com/users/4492099/m-vinay" target="_blank" class="seLink">
+                    <i title="Stack Exchange" aria-label="Stack Exchange" class="fa fa-stack-exchange" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="https://quora.com/profile/Vinay-Madhusudanan" target="_blank" class="qLink">
+                    <i title="Quora" aria-label="Quora" class="fa fa-quora" aria-hidden="true" role="img"></i>
+                </a>
+                <a href="mailto:vinay.m@gmail.com" class="emLink">
+                    <i title="Email" aria-label="Email" class="fa fa-envelope-o" aria-hidden="true" role="img"></i>
+                </a>
+            </div>
+        </div></div></div>
+        </nav>
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll" target="_blank">
+                Hakyll <img src="../images/haskell-logo.png" width="20px">
+            </a>
+        </footer>
+    </body>
+</html>

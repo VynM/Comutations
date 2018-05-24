@@ -37,10 +37,3 @@ instance Show (Set t) where
                 comma Null = ""
                 comma _ = ","       
 
-consInts :: Int -> Int -> Set Int
-consInts a b
-    | b < a = Null
-    | otherwise = Set m (consInts a (m - 1)) (consInts (m + 1) b) where
-        m = div (a + b) 2
-
-natSet = consInts 1
