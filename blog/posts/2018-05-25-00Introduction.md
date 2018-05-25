@@ -219,7 +219,7 @@ Prelude> perms $ Null <<- 1 <<- 2 <<- 3
 ```
 And that gives us a tiny verification of the <a href="#prop:n-permutations">proposition</a>.
 
- Here is the entire <a href="https://github.com/VynM/Comutations/blob/master/haskode/src/M0Introduction.hs" title="GitHub – M0Introduction.hs" target="_blank">module</a>, with some more operations on sets and permutations.
+ Here is the entire <a href="https://github.com/VynM/Comutations/blob/master/haskode/Comutations/src/M0Introduction.hs" title="GitHub – M0Introduction.hs" target="_blank">module</a>, with some more operations on sets and permutations.
 
  ```{.haskell}
  {-# LANGUAGE GADTs, StandaloneDeriving #-}
