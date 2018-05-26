@@ -1,11 +1,11 @@
 .env {
     font-size: 19px;
     letter-spacing: 0.5px;
-    padding-left: 0 0 0 0;
+    padding: 0;
 }
 
 .env section {
-    padding: 5px 10px 15px 10px;
+    padding: 5px 10px 15px 10px;    
 }
 
 .env header {

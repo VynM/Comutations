@@ -448,7 +448,7 @@ article.header {
 
 .sidenav {
   height: 100%;
-  width: 50px;
+  width: 45px;
   position: fixed;
   z-index: 2;
   top: 0;
@@ -482,7 +482,7 @@ article.header {
   padding-bottom: 30%;  
 }
 
-.open{
+.open {
   width: 350px;
 }
 
@@ -521,8 +521,8 @@ article.header {
   position: absolute;
   top: 0;
   right: 0px;
-  font-size: 10px;
-  width:50px;
+  font-size: 5px;
+  width:45px;
   padding-left: 0px;
   padding-top: 3px;
   height: 35px;
@@ -531,8 +531,8 @@ article.header {
 }
 
 .bar1, .bar2, .bar3 {
-  width: 35px;
-  height: 5px;
+  width: 30px;
+  height: 3px;
   background-color: #818181;
   margin: 6px 0px 0px 15px;
   transition: 0.4s;
@@ -540,15 +540,15 @@ article.header {
 }
 
 .change .bar1 {
-  -webkit-transform: rotate(-45deg) translate(-10px, 5px);
-  transform: rotate(-45deg) translate(-10px, 5px);
+  -webkit-transform: rotate(-45deg) translate(-7.5px, 5px);
+  transform: rotate(-45deg) translate(-7.5px, 5px);
 }
 
 .change .bar2 {opacity: 0;}
 
 .change .bar3 {
-  -webkit-transform: rotate(45deg) translate(-10px, -5px);
-  transform: rotate(45deg) translate(-10px, -5px);
+  -webkit-transform: rotate(45deg) translate(-7.5px,-5px);
+  transform: rotate(45deg) translate(-7.5px, -5px);
 }
 
 .comments {
