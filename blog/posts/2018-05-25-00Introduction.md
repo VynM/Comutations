@@ -28,7 +28,7 @@ The number of $n$-permutations is $n!$.
 I promise the rest of this post will be less straightforward.<sup><a title="Bóna ends the introduction here, with 'I promise the rest of the book will be less straightforward'" style="cursor:pointer;">1</a></sup>
 
 ## Sets in Haskell
-To efficiently encode a set in Haskell, we will use a <a href="https://en.wikipedia.org/wiki/Binary_search_tree" title="Wikipedia – Binary Search Tree" target="_blank">binary search tree</a>. First, let us look at what a binary tree is. A binary tree can be recursively defined as a structure consisting of a node and two children (left and right), each of which is itself a binary tree. But that defines an infinite binary tree, so we add a base case to this definition by stating that a binary tree is either an empty tree, or non-empty tree as we already defined.
+To efficiently encode a set in Haskell, we will use a <a href="https://en.wikipedia.org/wiki/Binary_search_tree" title="Binary Search Tree – Wikipedia" target="_blank">binary search tree</a>. First, let us look at what a binary tree is. A binary tree can be recursively defined as a structure consisting of a node and two children (left and right), each of which is itself a binary tree. But that defines an infinite binary tree, so we add a base case to this definition by stating that a binary tree is either an empty tree, or non-empty tree as we already defined.
 
 <div class="exm env">
 <header>Example: Binary Tree</header>
@@ -80,7 +80,7 @@ data Set t =
 
 This is a binary tree, not a binary *search* tree – because there is nothing to stop us from defining a set `Set 1 (Set 2 Null (Set 3)) (Set 4 (Set 4) (Set 5))`{.haskell}, which violates the constraint that left child elements must be smaller and right child elements must be greater than the root element (note that repeating an element is one of the ways of violating this contraint). This will break all the operations that we will be defining under the assumption that we are operating on a binary search tree. To prevent this, we will define a new way of constructing sets – adding one element at a time and making sure that it goes to its correct place in the tree.
 
-But talking about comparing the elements of a set assumes they *are* comparable – in Haskell, this means they are members of the class `Ord`{.haskell}. Under no circumstances do we want to define or use a set of elements that cannot be ordered, so we can enforce this as a constraint in the data declaration itself. To do this, however, we need to enable the <a href="https://en.wikibooks.org/wiki/Haskell/GADT" title="Haskell Wikibook – Generalised Algebraic Datatype" target="_blank">Generalised Algebraic Datatypes</a> (GADTs) language option by adding `{-# LANGUAGE GADTs -#}`{.haskell} to the beginning of our source file. Now we rewrite `Set`{.haskell} yet again.
+But talking about comparing the elements of a set assumes they *are* comparable – in Haskell, this means they are members of the class `Ord`{.haskell}. Under no circumstances do we want to define or use a set of elements that cannot be ordered, so we can enforce this as a constraint in the data declaration itself. To do this, however, we need to enable the <a href="https://en.wikibooks.org/wiki/Haskell/GADT" title="Generalised Algebraic Datatype – Haskell Wikibook" target="_blank">Generalised Algebraic Datatypes</a> (GADTs) language option by adding `{-# LANGUAGE GADTs -#}`{.haskell} to the beginning of our source file. Now we rewrite `Set`{.haskell} yet again.
 ```{.haskell}
 data Set t where
     Null :: Set t
@@ -151,7 +151,7 @@ _ <<= Null = False
 n <<= (Set m left right) = n == m || (n < m && n <<= left) || (n > m && n <<= right)
 ```
 
-Finally, we are ready to define permutations! We will not restrict permutations to arrangements of $[n]$ (partly because this is difficult to do, and partly because we will certainly have to revise this definition later). A permutation is just a list then, for a list (in Haskell) is naturally ordered from its first element to its last. But it is a list in which elements do not repeat. So once again, we have to define a type for permutations and then write a function that constructs only valid permutations. To define a permutation, we simply wrap a list in a constructor. Rather than using a data declaration, we will use a <a href="https://wiki.haskell.org/Type#Type_and_newtype" title="HaskellWiki – Type and newtype" target="_blank">newtype</a>.
+Finally, we are ready to define permutations! We will not restrict permutations to arrangements of $[n]$ (partly because this is difficult to do, and partly because we will certainly have to revise this definition later). A permutation is just a list then, for a list (in Haskell) is naturally ordered from its first element to its last. But it is a list in which elements do not repeat. So once again, we have to define a type for permutations and then write a function that constructs only valid permutations. To define a permutation, we simply wrap a list in a constructor. Rather than using a data declaration, we will use a <a href="https://wiki.haskell.org/Type#Type_and_newtype" title="Type and newtype – HaskellWiki" target="_blank">newtype</a>.
 ```{.haskell}
 newtype Perm t = Perm [t] deriving
 ```
