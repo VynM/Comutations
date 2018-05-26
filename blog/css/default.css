@@ -8,7 +8,7 @@ body {
   font-variant-ligatures: none;
   font-size: 20px;
   color: #102030;
-  background-color: #ffffff;
+  background-color: #f5f9f2;
 }
 
 .postBody {
@@ -44,8 +44,8 @@ h1.title {
   font-family: Buda;
   font-size: 85%;
   color: #203070;
-  border: solid 1px #fffff9;
-  background: #fffff9;
+  border: solid 1px #faf7f0;
+  background: #faf7f0;
   box-shadow: 0px 0px 15px #f5f5f0;
   padding: 5px 2px 5px 2px;
   line-height: 1;
@@ -555,7 +555,7 @@ article.header {
 
 .comments {
   border: 0px solid #ffffff;
-  background: #fcfcff;
+  background: #f3f7f2;
   padding: 3px 10px 5px 10px;
 }
 
@@ -570,15 +570,15 @@ header.comments {
 }
 
 a.copyCode {
-  color: #9999ff;
+  color: #7777ff;
   padding: 3px;
-  box-shadow: 0px 0px 2px #e0e0ff;
+  box-shadow: 0px 0px 3px #d0d0ff;
   cursor: pointer;
 }
 
 a.copyCode:hover {
-  color: #aaaaff;
-  box-shadow: 1px 1px 2px #cccccc;
+  color: #9999ff;
+  box-shadow: 1px 1px 3px #cccccc;
 }
 
 
