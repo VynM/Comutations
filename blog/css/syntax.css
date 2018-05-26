@@ -12,6 +12,7 @@ a.sourceLine {
   text-decoration: inherit;
   padding-right: 10px;
 }
+
 a.sourceLine:empty { height: 1.2em; position: absolute; }
 .sourceCode { overflow: visible; }
 
@@ -33,10 +34,6 @@ pre code {
   padding-left: 0px;
 }
 
-div.sourceCode {
-  box-shadow: 0 0 2px black;  
-}
-
 code::selection {
   background: #777;
 }
@@ -53,14 +50,28 @@ code span::selection, a.sourceLine::selection {
   text-shadow: 0px 0px 1px;
 }
 
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode {
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  position: relative;
+}
+
+pre code.sourceCode {
+  white-space: pre;
+}
+
 div.sourceCode {
   margin: 1em 0;
   line-height: normal;
+  box-shadow: 0 0 2px black;
 }
+
 pre.sourceCode { margin: 0; }
+
 @media screen {
-div.sourceCode {
+  div.sourceCode {
     background-color: #151515;
     overflow: auto;  
     padding: 5px 15px 10px 15px;
@@ -68,9 +79,10 @@ div.sourceCode {
     border-color: #252530;;
     border-radius: 0px; 
     font-family: "Fira Code", monospace;
-    font-variant-ligatures: contextual;    
+    font-variant-ligatures: contextual;
   }
 }
+
 @media print {
 code.sourceCode { white-space: pre-wrap; }
 a.sourceLine { text-indent: -1em; padding-left: 1em; }
