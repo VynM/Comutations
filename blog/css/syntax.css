@@ -6,7 +6,7 @@ pre {
 a.sourceLine {
   background-color: #151515;
   display: inline-block; 
-  font-size: 15px;
+  font-size: 105%;
   pointer-events: none; 
   color: inherit;
   text-decoration: inherit;
@@ -24,7 +24,7 @@ code {
   padding-right: 5px;
   padding-top: 1px;
   padding-bottom: 1px;
-  font-size: 14px;
+  font-size: 70%;
   border-radius: 2px;
   letter-spacing: 0px;
 }
