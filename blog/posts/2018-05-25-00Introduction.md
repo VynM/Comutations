@@ -189,12 +189,12 @@ perms :: Ord t => Set t -> [Perm t]
 perms = map perm . perms' [[]] . setToList where
     perms' ps [] = ps
     perms' ps (n:ns) = perms'
-        [first ++ [n] ++ rest | (first, rest) <- foldr (++) [] $ map lisa ps]
+        [first ++ [n] ++ rest | (first, rest) <- concat $ map lisa ps]
         ns
     lisa [] = [([], [])]
     lisa (p:ps) = ([], p:ps) : [(p:first, rest) | (first, rest) <- lisa ps]
 ```
-The argument `ps`{.haskell} is an accumulator (that stores all permutations generated so far). Then `lisa`{.haskell} `map`{.haskell}ped over them tears each one apart in all possible ways (generating a list of list of list-tuples, which has to be folded once to give us back a list of list-tuples). And then we stitch the list-tuples back together but with the new element in between, and this is our new accumulator.
+The argument `ps`{.haskell} is an accumulator (that stores all permutations generated so far). Then `lisa`{.haskell} `map`{.haskell}ped over them tears each one apart in all possible ways (generating a list of lists of list-tuples which have to be concatenated to give us back a list of list-tuples). And then we stitch each list-tuple back together but with the new element in between, and this is our new accumulator.
 
 Let\'s write a `show`{.haskell} function for permutations and then test this!
 ```{.haskell}
@@ -394,7 +394,7 @@ addPerms (Perm ps) qperm = foldl (permIns) qperm $ reverse ps
 perms :: Ord t => Set t -> [Perm t]
 perms = map perm . perms' [[]] . setToList where
     perms' ps [] = ps
-    perms' ps (n:ns) = perms' [first ++ [n] ++ rest | (first, rest) <- foldr (++) [] $ map lisa ps] ns
+    perms' ps (n:ns) = perms' [first ++ [n] ++ rest | (first, rest) <- concat $ map lisa ps] ns
     lisa [] = [([], [])]
     lisa (p:ps) = ([], p:ps) : [(p:first, rest) | (first, rest) <- lisa ps]
 

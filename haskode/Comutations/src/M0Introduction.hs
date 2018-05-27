@@ -170,7 +170,7 @@ addPerms (Perm ps) qperm = foldl (permIns) qperm $ reverse ps
 perms :: Ord t => Set t -> [Perm t]
 perms = map perm . perms' [[]] . setToList where
     perms' ps [] = ps
-    perms' ps (n:ns) = perms' [first ++ [n] ++ rest | (first, rest) <- foldr (++) [] $ map lisa ps] ns
+    perms' ps (n:ns) = perms' [first ++ [n] ++ rest | (first, rest) <- concat $ map lisa ps] ns
     lisa [] = [([], [])]
     lisa (p:ps) = ([], p:ps) : [(p:first, rest) | (first, rest) <- lisa ps]
 
