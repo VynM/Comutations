@@ -7,7 +7,7 @@ This is a very small chapter (just one page) in the book, and all we do here is 
 
 A permutation is an arrangement. Of elements of some set. We don\'t care what the elements are, so they might as well be the familar natural numbers that are easy to talk about. We\'ll denote the set of the first $n$ natural numbers as $[n] = \{1, 2, \ldots, n\}$. Now we can define (our own version of) what a permutation is.
 
-<div class="def env">
+<div class="def env"><a id="def:permutation"></a>
 <header>Definition: Permutation</header>
 <section>
 A *permutation* is a linear ordering of the elements of the set $[n]$. In particular, this is an *$n$-permutation*. A general $n$-permutation $p$ is written as $p_1 p_2 \cdots p_n$, where $p_i$ is the <nobr>$i$<sup>th</sup></nobr> element in the linear order defined by $p$.

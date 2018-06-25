@@ -201,6 +201,10 @@ a.ctsLink:hover, a.ctsLink:focus {
   color: #50ff50;
 }
 
+a.feedLink:hover, a.feedLink:focus {
+  color: #d03f10;
+}
+
 a.ghLink:hover, a.ghLink:focus {
   color: white;
 }
@@ -325,7 +329,7 @@ article.header {
 
   .right .contact {
     position: relative;
-    padding-top: 100px;
+    padding-top: 20px;
   }
 
   .iconset {

@@ -1,17 +1,19 @@
-{-# LANGUAGE GADTs, StandaloneDeriving #-}
+{-# LANGUAGE GADTs, StandaloneDeriving, PatternSynonyms #-}
 
-module M0Introduction (Set(Null), (<<=), (<<), (<<-), (->>), (<+>), (<**>),
+module M0Introduction (Set(Null), pattern Set, (<<=), (<<), (<<-), (->>), (<+>), (<**>),
                         setMap, card, setFoldl, setFoldr, setZipWith, setMin, setMax, listToSet, setToList, setToList', 
                         atom, consInts, finNats, nats,
-                        perm, pList, permIns, revPerm, addPerms, perms, permSet) where
+                        Perm, pattern Perm, perm, pList, permIns, revPerm, addPerms, perms, permSet) where
 
 data Set t where
-    Null :: Set t
-    Set :: Ord t => {
+    Null :: Set t    
+    NESet :: Ord t => {
         root :: t,
-        lSet :: Set t,
+        lSet :: Set t,   
         rSet :: Set t
     } -> Set t
+
+pattern Set n left right <- NESet n left right
 
 instance Show t => Show (Set t) where
     show set = "{" ++ show' set ++ "}" where
@@ -41,8 +43,8 @@ deriving instance Ord (Set t)
 -- Insert into set
 infixl 5 <<-
 (<<-) :: Ord t => Set t -> t -> Set t
-Null <<- n = Set n Null Null
-Set m left right <<- n = Set m left' right' where
+Null <<- n = NESet n Null Null
+Set m left right <<- n = NESet m left' right' where
     (left', right') = case compare m n of
         LT -> (left, right <<- n)
         GT -> (left <<- n, right)
@@ -53,8 +55,8 @@ infixl 5 ->>
 (->>) :: Set t -> t -> Set t
 Null ->> n = Null
 (Set m left right) ->> n
-    | m < n = Set m left (right ->> n)
-    | m > n = Set m (left ->> n) right
+    | m < n = NESet m left (right ->> n)
+    | m > n = NESet m (left ->> n) right
     | otherwise = left <+> right
 
 -- Set union
@@ -62,7 +64,7 @@ infixl 5 <+>
 (<+>) :: Set t -> Set t -> Set t
 Null <+> set = set
 set <+> Null = set
-(Set m left1 right1) <+> (Set n left2 right2) = Set m left' right' <+> res where
+(Set m left1 right1) <+> (Set n left2 right2) = NESet m left' right' <+> res where
     (left', right', res) = case compare m n of
         LT -> (left1, right1 <+> right2 <<- n, left2)
         GT -> (left1 <+> left2 <<- n, right1, right2)
@@ -71,7 +73,7 @@ set <+> Null = set
 -- Set transformation by unary function applied to all elements
 setMap :: (Ord a, Ord b) => (a -> b) -> Set a -> Set b
 setMap _ Null = Null
-setMap f (Set n left right) = Set (f n) (setMap f left) (setMap f right)
+setMap f (Set n left right) = NESet (f n) (setMap f left) (setMap f right)
 
 -- Set Cartesian product
 infixl 6 <**>
@@ -126,13 +128,13 @@ setToList' = setFoldl (\list n -> n:list) []
 
 -- Singleton set
 atom :: Ord t => t -> Set t
-atom n = Set n Null Null
+atom n = NESet n Null Null
 
 -- Set of consecutive integers
 consInts :: Integral i => i -> i -> Set i
 consInts a b
     | b < a = Null
-    | otherwise = Set m (consInts a (m - 1)) (consInts (m + 1) b) where
+    | otherwise = NESet m (consInts a (m - 1)) (consInts (m + 1) b) where
         m = div (a + b) 2
 
 -- Set of first n naturals
@@ -141,26 +143,34 @@ finNats = consInts 1
 
 -- Set of all naturals
 nats :: Integral i => Set i
-nats = Set 1 Null (setMap (+1) nats)
+nats = NESet 1 Null (setMap (+1) nats)
 
-newtype Perm t = Perm {pList :: [t]} deriving (Eq, Ord)
+newtype Perm t = Permutation {pList :: [t]} deriving (Eq, Ord)
+
+pattern Perm ps <- Permutation ps
 
 -- Insert into permutation
 permIns :: Eq t => Perm t -> t -> Perm t
-permIns (Perm ps) n
-    | n `elem` ps = Perm ps
-    | otherwise = Perm (n:ps)
+permIns (Permutation ps) n
+    | n `elem` ps = Permutation ps
+    | otherwise = Permutation (n:ps)
 
 -- Safe permutation constructor
 perm :: Eq t => [t] -> Perm t
-perm = Perm . reverse . pList . foldl permIns (Perm [])
+perm = Permutation . reverse . pList . foldl permIns (Permutation [])
+
+setIns Null n = (NESet n Null Null, True)
+setIns (Set m l r) n
+    | m < n = let (r', succ) = setIns r n in (NESet m l r', succ)
+    | m > n = let (l', succ) = setIns l n in (NESet m l' r, succ)
+    | otherwise = (NESet m l r, False)
 
 instance Show t => Show (Perm t) where
     show = show . pList
 
 -- Reverse of a permutation
 revPerm :: Eq t => Perm t -> Perm t
-revPerm = Perm . reverse . pList
+revPerm = Permutation . reverse . pList
 
 -- Safe concatenation of permutations
 addPerms :: Eq t => Perm t -> Perm t -> Perm t

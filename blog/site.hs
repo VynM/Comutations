@@ -18,6 +18,9 @@ main = hakyll $ do
     match "posts/*" $ version "menu" $ do
         route $ setExtension "html"
         compile $ pandocMathCompiler
+    
+    match "posts/*.md" $ version "feed" $ do
+        compile $ pandocMathCompiler  
 
     match "posts/*" $ do 
         route $ setExtension "html"
@@ -27,7 +30,7 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/post.html" postCtx
                 >>= saveSnapshot "teaserSnap"
                 >>= loadAndApplyTemplate "templates/default.html" (
-                    listField "posts" postCtx (return posts) `mappend`
+                    listField "posts" postCtx (return posts) <>
                     postCtx
                 )      
                 >>= relativizeUrls
@@ -37,8 +40,8 @@ main = hakyll $ do
         compile $ do
             posts <- chronological =<< loadAll ("posts/*" .&&. hasVersion "menu")
             let contentsCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Contents"            `mappend`
+                    listField "posts" postCtx (return posts) <>
+                    constField "title" "Contents"            <>
                     defaultContext
 
             makeItem ""
@@ -51,7 +54,7 @@ main = hakyll $ do
         compile $ do
             posts <- chronological =<< loadAll ("posts/*" .&&. hasVersion "menu")
             let pageCtx =
-                    listField "posts" postCtx (return posts) `mappend`
+                    listField "posts" postCtx (return posts) <>
                     defaultContext
             pandocMathCompiler
                 >>= loadAndApplyTemplate "templates/default.html" pageCtx
@@ -63,9 +66,9 @@ main = hakyll $ do
             posts <- chronological =<< loadAll ("posts/*" .&&. hasVersion "menu")
             teasers <- recentFirst =<< loadAllSnapshots ("posts/*" .&&. hasNoVersion) "teaserSnap"
             let indexCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    listField "postTeasers" teaserCtx (return teasers) `mappend`
-                    constField "title" "Home"                `mappend`
+                    listField "posts" postCtx (return posts) <>
+                    listField "postTeasers" teaserCtx (return teasers) <>
+                    constField "title" "Home"                <>
                     defaultContext
 
             getResourceBody
@@ -75,11 +78,18 @@ main = hakyll $ do
 
     match "templates/*" $ compile templateBodyCompiler
 
+    create ["atom.xml"] $ do
+        route idRoute
+        compile $ do
+            let feedCtx = postCtx <> bodyField "description"
+            posts <- fmap (take 10) . recentFirst =<<
+                loadAll ("posts/*" .&&. hasVersion "feed")
+            renderAtom feedConfiguration feedCtx posts
 
 --------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
-    dateField "date" "%B %e, %Y" `mappend`
+    dateField "date" "%B %e, %Y" <>
     defaultContext
 
 teaserCtx :: Context String
@@ -90,3 +100,12 @@ pandocMathCompiler =
                           writerHTMLMathMethod = MathJax ""
                         }
     in pandocCompilerWith defaultHakyllReaderOptions writerOptions
+
+feedConfiguration :: FeedConfiguration
+feedConfiguration = FeedConfiguration
+    { feedTitle       = "Combinatorics of Permutations"
+    , feedDescription = "Latest posts on Combinatorics of Permutations."
+    , feedAuthorName  = "Vinay Madhusudanan"
+    , feedAuthorEmail = "vinay.m20000@gmail.com"
+    , feedRoot        = "https://vynm.github.io/Comutations/"
+    }
