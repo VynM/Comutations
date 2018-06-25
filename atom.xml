@@ -1,36 +1,21 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Combinatorics of Permutations: Introduction</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya%7CBuda:300%7CPalanquin%7CActor%7CRaleway:900" />
-        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-serif" type="text/css" />
-        <link rel="stylesheet" media="screen" href="https://fontlibrary.org/face/cmu-sans-serif" type="text/css" />
-        <link rel="stylesheet" href="https://cdn.rawgit.com/tonsky/FiraCode/1.205/distr/fira_code.css">
-        <link rel="stylesheet" href="../css/default.css" />
-        <link rel="stylesheet" href="../css/math.css" />
-        <link rel="stylesheet" href="../css/syntax.css" />
-        <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
-        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
-    </head>
-    <body>
-        <div class="left">
-            <div class="logo">
-                <a href="../"><img src="../images/LambdaPermutations.png" width="200px" /><Br />Combinatorics <Br /> of <Br /> Permutations</a>
-                Vinay Madhusudanan
-            </div>
-        </div>
-        <div class="main">
-            <h1 class="title">Introduction</h1>
-            <article class="post">
-    <section class="header">
-            <div class="postDate">Posted on May 25, 2018
-        </div>
-    </section>
-    <section class="postBody">
-        <p>This is a very small chapter (just one page) in the book, and all we do here is define a permutation, introduce some notation, and count the total number of permutations of a given number of objects (everyone knows the answer). Nevertheless, we need to tell Haskell what a set is before we can tell it what a permutation is. And then we can also define some of the familiar operations on sets, which may come in handy later. <!--more--></p>
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Combinatorics of Permutations</title>
+    <link href="https://vynm.github.io/Comutations//atom.xml" rel="self" />
+    <link href="https://vynm.github.io/Comutations/" />
+    <id>https://vynm.github.io/Comutations//atom.xml</id>
+    <author>
+        <name>Vinay Madhusudanan</name>
+        <email>vinay.m20000@gmail.com</email>
+    </author>
+    <updated>2018-05-25T00:00:00Z</updated>
+    <entry>
+    <title>Introduction</title>
+    <link href="https://vynm.github.io/Comutations/" />
+    <id>https://vynm.github.io/Comutations/</id>
+    <published>2018-05-25T00:00:00Z</published>
+    <updated>2018-05-25T00:00:00Z</updated>
+    <summary type="html"><![CDATA[<p>This is a very small chapter (just one page) in the book, and all we do here is define a permutation, introduce some notation, and count the total number of permutations of a given number of objects (everyone knows the answer). Nevertheless, we need to tell Haskell what a set is before we can tell it what a permutation is. And then we can also define some of the familiar operations on sets, which may come in handy later. <!--more--></p>
 <p>A permutation is an arrangement. Of elements of some set. We don't care what the elements are, so they might as well be the familar natural numbers that are easy to talk about. We'll denote the set of the first <span class="math inline">\(n\)</span> natural numbers as <span class="math inline">\([n] = \{1, 2, \ldots, n\}\)</span>. Now we can define (our own version of) what a permutation is.</p>
 <div class="def env">
 <a id="def:permutation"></a>
@@ -116,25 +101,25 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="ot">(&lt;&lt;-) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a></code></pre></div>
 <p>Now <code class="sourceCode haskell"><span class="fu">&lt;&lt;-</span></code> is a left-associative infix operator with fixity <code>5</code>, whose first argument is of type <code class="sourceCode haskell"><span class="dt">Set</span> t</code> and second argument is (an element) of type <code class="sourceCode haskell">t</code>. What should this operator do, for example, if we write <code class="sourceCode haskell">set <span class="fu">&lt;&lt;-</span> n</code> (where <code class="sourceCode haskell">set</code> is some already defined set)? Let's assume that <code class="sourceCode haskell">set <span class="fu">=</span> <span class="dt">Set</span> m left right</code> (i.e., it has root element <code class="sourceCode haskell">m</code>, and left and right children <code class="sourceCode haskell">left</code> and <code class="sourceCode haskell">right</code> respectively). If <code class="sourceCode haskell">n</code> is smaller than <code class="sourceCode haskell">m</code>, then we should insert it in the left child, and if it is greater than <code class="sourceCode haskell">m</code>, we should insert it in the right child. Otherwise, there is nothing to do, it's already in <code class="sourceCode haskell">set</code>. To insert <code class="sourceCode haskell">n</code> in the left or right child, we again use <code class="sourceCode haskell"><span class="fu">&lt;&lt;-</span></code>, of course: <code class="sourceCode haskell">left <span class="fu">&lt;&lt;-</span> n</code> or <code class="sourceCode haskell">right <span class="fu">&lt;&lt;-</span> n</code>. So this function is recursive, and needs a base case. Where does our process (as it is at present) fail? When we reach a set that has no left or right child. That's <code class="sourceCode haskell"><span class="dt">Null</span></code>. So the base case is inserting an element into <code class="sourceCode haskell"><span class="dt">Null</span></code>, and that should obviously give us <code class="sourceCode haskell"><span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></code>. And that's it, we're done! Using pattern matching:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="kw">where</span></a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">    (left', right') <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left&#39; right&#39; <span class="kw">where</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">    (left&#39;, right&#39;) <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">        <span class="dt">LT</span> <span class="ot">-&gt;</span> (left, right <span class="fu">&lt;&lt;-</span> n)</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">        <span class="dt">GT</span> <span class="ot">-&gt;</span> (left <span class="fu">&lt;&lt;-</span> n, right)</a>
 <a class="sourceLine" id="cb5-6" data-line-number="6">        <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left, right)</a></code></pre></div>
 <p>Now we can write our earlier example as <code class="sourceCode haskell"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span> <span class="fu">&lt;&lt;-</span> <span class="dv">2</span> <span class="fu">&lt;&lt;-</span> <span class="dv">3</span> <span class="fu">&lt;&lt;-</span> <span class="dv">4</span> <span class="fu">&lt;&lt;-</span> <span class="dv">5</span></code>. So much simpler! But we can't &quot;see&quot; this set because we haven't written a <code class="sourceCode haskell">show</code> function yet. We could derive <code class="sourceCode haskell"><span class="dt">Show</span></code>, but that's not of much use if we want the set to be displayed as <code class="sourceCode haskell">{<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>}</code> (like in math). So we need a clever <code class="sourceCode haskell">show</code> function.</p>
-<p>It must be recursive and the base case is clearly <code class="sourceCode haskell">show <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;{}&quot;</span></code>. Or is it? Remember that a non-empty set can have nodes with <code class="sourceCode haskell"><span class="dt">Null</span></code> children. We don't want these as well to be shown as <code class="sourceCode haskell"><span class="st">&quot;{}&quot;</span></code>. And in a recursive function call, there is no way of telling (without using flags or something similarly ugly), whether the current <code class="sourceCode haskell"><span class="dt">Null</span></code> set is a child of some node or not. So what we will do is have <code class="sourceCode haskell">show</code> call a helper function <code class="sourceCode haskell">show'</code>, which would do the heavy lifting and use recursion, and then insert the output between <code class="sourceCode haskell"><span class="st">&quot;{&quot;</span></code> and <code class="sourceCode haskell"><span class="st">&quot;}&quot;</span></code>. The base case for <code class="sourceCode haskell">show'</code> should take a <code class="sourceCode haskell"><span class="dt">Null</span></code> and return the empty string. And for a non-empty set we have:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1">show' <span class="dt">Set</span> n left right <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a></code></pre></div>
-<p>Does this work? Clearly not, for <code class="sourceCode haskell">show' <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span></code> would be <code class="sourceCode haskell"><span class="st">&quot;,1,&quot;</span></code>. We need to be smarter. When the node has an empty child, we should not add a comma on that side. That becomes three different cases.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1">show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">show' (<span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span>) <span class="fu">=</span> show n</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">show' (<span class="dt">Set</span> n <span class="dt">Null</span> right) <span class="fu">=</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">show' (<span class="dt">Set</span> n left <span class="dt">Null</span>) <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show' right</a></code></pre></div>
-<p>There is clearly some repetition of logic here. After all, whether it's on the left or right, a comma is inserted if and only if the tree is non-empty. That is, <code class="sourceCode haskell">comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></code> and <code class="sourceCode haskell">comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></code>. Using this, we can write a much more compact <code class="sourceCode haskell">show'</code>. Also, notice that we are calling <code class="sourceCode haskell">show n</code>, which assumes that <code class="sourceCode haskell">n</code> is a member of <code class="sourceCode haskell"><span class="dt">Show</span></code>. This must be added as a constraint in the type signature.</p>
+<p>It must be recursive and the base case is clearly <code class="sourceCode haskell">show <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;{}&quot;</span></code>. Or is it? Remember that a non-empty set can have nodes with <code class="sourceCode haskell"><span class="dt">Null</span></code> children. We don't want these as well to be shown as <code class="sourceCode haskell"><span class="st">&quot;{}&quot;</span></code>. And in a recursive function call, there is no way of telling (without using flags or something similarly ugly), whether the current <code class="sourceCode haskell"><span class="dt">Null</span></code> set is a child of some node or not. So what we will do is have <code class="sourceCode haskell">show</code> call a helper function <code class="sourceCode haskell">show&#39;</code>, which would do the heavy lifting and use recursion, and then insert the output between <code class="sourceCode haskell"><span class="st">&quot;{&quot;</span></code> and <code class="sourceCode haskell"><span class="st">&quot;}&quot;</span></code>. The base case for <code class="sourceCode haskell">show&#39;</code> should take a <code class="sourceCode haskell"><span class="dt">Null</span></code> and return the empty string. And for a non-empty set we have:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb6-1" data-line-number="1">show&#39; <span class="dt">Set</span> n left right <span class="fu">=</span> show&#39; left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show&#39; right</a></code></pre></div>
+<p>Does this work? Clearly not, for <code class="sourceCode haskell">show&#39; <span class="fu">$</span> <span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> <span class="dv">1</span></code> would be <code class="sourceCode haskell"><span class="st">&quot;,1,&quot;</span></code>. We need to be smarter. When the node has an empty child, we should not add a comma on that side. That becomes three different cases.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb7-1" data-line-number="1">show&#39; <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">show&#39; (<span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span>) <span class="fu">=</span> show n</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">show&#39; (<span class="dt">Set</span> n <span class="dt">Null</span> right) <span class="fu">=</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show&#39; right</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">show&#39; (<span class="dt">Set</span> n left <span class="dt">Null</span>) <span class="fu">=</span> show&#39; left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">show&#39; (<span class="dt">Set</span> n left right) <span class="fu">=</span> show&#39; left <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show n <span class="fu">++</span> <span class="st">&quot;,&quot;</span> <span class="fu">++</span> show&#39; right</a></code></pre></div>
+<p>There is clearly some repetition of logic here. After all, whether it's on the left or right, a comma is inserted if and only if the tree is non-empty. That is, <code class="sourceCode haskell">comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></code> and <code class="sourceCode haskell">comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></code>. Using this, we can write a much more compact <code class="sourceCode haskell">show&#39;</code>. Also, notice that we are calling <code class="sourceCode haskell">show n</code>, which assumes that <code class="sourceCode haskell">n</code> is a member of <code class="sourceCode haskell"><span class="dt">Show</span></code>. This must be added as a constraint in the type signature.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Set</span> t) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">    show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show' set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">        show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">        show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show' right <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">    show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show&#39; set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">        show&#39; <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">        show&#39; (<span class="dt">Set</span> n left right) <span class="fu">=</span> show&#39; left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show&#39; right <span class="kw">where</span></a>
 <a class="sourceLine" id="cb8-5" data-line-number="5">            comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
 <a class="sourceLine" id="cb8-6" data-line-number="6">            comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></a></code></pre></div>
 <p>Let's try this out.</p>
@@ -166,12 +151,12 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <p>Suppose we have all the <span class="math inline">\((n - 1)!\)</span> permutations of a set of <span class="math inline">\(n - 1\)</span> objects. If we now add an <nobr><span class="math inline">\(n\)</span><sup>th</sup></nobr> element to this set, then in order to get all of their <span class="math inline">\(n!\)</span> permutations, we must somehow generate <span class="math inline">\(n\)</span> permutations from <em>each</em> of the <span class="math inline">\((n - 1)!\)</span> permutations of the smaler set (so that <span class="math inline">\(n \times (n - 1)! = n!\)</span>).</p>
 </blockquote>
 <p>But we do already know how we can generate those <span class="math inline">\(n\)</span> <span class="math inline">\(n\)</span>-permutations corresponding to each <span class="math inline">\((n-1)\)</span>-permutation (for that is how we know the reccurence relation in the first place!). From each <span class="math inline">\((n-1)\)</span>-permutation, we can get an <span class="math inline">\(n\)</span>-permutation by inserting the new element somewhere in the <span class="math inline">\((n-1)\)</span>-permutation. How many choices of places are there for inserting the element? There are <span class="math inline">\(n - 2\)</span> places <em>between</em> the <span class="math inline">\(n - 1\)</span> objects, and there are two more places (extreme left and extreme right), so the answer is <span class="math inline">\(n\)</span>. And this is precisely how we will generate the permutations too!</p>
-<p>Our <code class="sourceCode haskell">perms</code> function will take a set as input, convert it to a list (guaranteed to have no repeated elements) and pass this to a helper function <code class="sourceCode haskell">perms'</code> (since it is more convenient to work with lists and avoid having to unwrap permutations all the time). The output of the helper function will be a list of lists, so <code class="sourceCode haskell">perms</code> will also have to wrap each permutation in <code class="sourceCode haskell"><span class="dt">Perm</span></code> and finally return a list of permutations.</p>
-<p>In defining <code class="sourceCode haskell">perms'</code>, the helper function, the main difficulty seems to be in inserting the new element in all possible positions in the <span class="math inline">\((n-1)\)</span>-permutation. This can be broken down into two logical steps. First, we <em>tear apart</em> a given list (the <span class="math inline">\((n-1)\)</span>-permutation) into two parts in <strong>all possible ways</strong>. Then we join (concatenate) the two parts, but <em>place the new element in between first</em>. Concatenation of lists is easily done in Haskell, but although we could use <code class="sourceCode haskell">take</code> and <code class="sourceCode haskell">drop</code> to tear apart a list, it is more efficient to do this recursively and avoid performing the same operation twice. So we will write another helper function <code class="sourceCode haskell">lisa</code> to tear the list apart.</p>
+<p>Our <code class="sourceCode haskell">perms</code> function will take a set as input, convert it to a list (guaranteed to have no repeated elements) and pass this to a helper function <code class="sourceCode haskell">perms&#39;</code> (since it is more convenient to work with lists and avoid having to unwrap permutations all the time). The output of the helper function will be a list of lists, so <code class="sourceCode haskell">perms</code> will also have to wrap each permutation in <code class="sourceCode haskell"><span class="dt">Perm</span></code> and finally return a list of permutations.</p>
+<p>In defining <code class="sourceCode haskell">perms&#39;</code>, the helper function, the main difficulty seems to be in inserting the new element in all possible positions in the <span class="math inline">\((n-1)\)</span>-permutation. This can be broken down into two logical steps. First, we <em>tear apart</em> a given list (the <span class="math inline">\((n-1)\)</span>-permutation) into two parts in <strong>all possible ways</strong>. Then we join (concatenate) the two parts, but <em>place the new element in between first</em>. Concatenation of lists is easily done in Haskell, but although we could use <code class="sourceCode haskell">take</code> and <code class="sourceCode haskell">drop</code> to tear apart a list, it is more efficient to do this recursively and avoid performing the same operation twice. So we will write another helper function <code class="sourceCode haskell">lisa</code> to tear the list apart.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="ot">perms ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [<span class="dt">Perm</span> t]</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms' [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">    perms' ps [] <span class="fu">=</span> ps</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">    perms' ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms'</a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms&#39; [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">    perms&#39; ps [] <span class="fu">=</span> ps</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">    perms&#39; ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms&#39;</a>
 <a class="sourceLine" id="cb14-5" data-line-number="5">        [first <span class="fu">++</span> [n] <span class="fu">++</span> rest <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> concat <span class="fu">$</span> map lisa ps]</a>
 <a class="sourceLine" id="cb14-6" data-line-number="6">        ns</a>
 <a class="sourceLine" id="cb14-7" data-line-number="7">    lisa [] <span class="fu">=</span> [([], [])]</a>
@@ -198,7 +183,7 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <div class="sourceCode" id="cb17"><pre class="sourceCode haskell"><code class="sourceCode haskell"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="ot">{-# LANGUAGE GADTs, StandaloneDeriving #-}</span></a>
 <a class="sourceLine" id="cb17-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb17-3" data-line-number="3"><span class="kw">module</span> <span class="dt">M0Introduction</span> (<span class="dt">Set</span>(<span class="dt">Null</span>), (<span class="fu">&lt;&lt;=</span>), (<span class="fu">&lt;&lt;</span>), (<span class="fu">&lt;&lt;-</span>), (<span class="ot">-&gt;</span><span class="fu">&gt;</span>), (<span class="fu">&lt;+&gt;</span>), (<span class="fu">&lt;**&gt;</span>),</a>
-<a class="sourceLine" id="cb17-4" data-line-number="4">                       setMap, card, setFoldl, setFoldr, setZipWith, setMin, setMax, listToSet, setToList, setToList', </a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">                       setMap, card, setFoldl, setFoldr, setZipWith, setMin, setMax, listToSet, setToList, setToList&#39;, </a>
 <a class="sourceLine" id="cb17-5" data-line-number="5">                       atom, consInts, finNats, nats,</a>
 <a class="sourceLine" id="cb17-6" data-line-number="6">                       perm, pList, permIns, revPerm, addPerms, perms, permSet) <span class="kw">where</span></a>
 <a class="sourceLine" id="cb17-7" data-line-number="7"></a>
@@ -211,9 +196,9 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb17-14" data-line-number="14">   } <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
 <a class="sourceLine" id="cb17-15" data-line-number="15"></a>
 <a class="sourceLine" id="cb17-16" data-line-number="16"><span class="kw">instance</span> <span class="dt">Show</span> t <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Set</span> t) <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-17" data-line-number="17">   show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show' set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-18" data-line-number="18">       show' <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
-<a class="sourceLine" id="cb17-19" data-line-number="19">       show' (<span class="dt">Set</span> n left right) <span class="fu">=</span> show' left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show' right <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-17" data-line-number="17">   show set <span class="fu">=</span> <span class="st">&quot;{&quot;</span> <span class="fu">++</span> show&#39; set <span class="fu">++</span> <span class="st">&quot;}&quot;</span> <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-18" data-line-number="18">       show&#39; <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
+<a class="sourceLine" id="cb17-19" data-line-number="19">       show&#39; (<span class="dt">Set</span> n left right) <span class="fu">=</span> show&#39; left <span class="fu">++</span> comma left <span class="fu">++</span> show n <span class="fu">++</span> comma right <span class="fu">++</span> show&#39; right <span class="kw">where</span></a>
 <a class="sourceLine" id="cb17-20" data-line-number="20">           comma <span class="dt">Null</span> <span class="fu">=</span> <span class="st">&quot;&quot;</span></a>
 <a class="sourceLine" id="cb17-21" data-line-number="21">           comma _ <span class="fu">=</span> <span class="st">&quot;,&quot;</span></a>
 <a class="sourceLine" id="cb17-22" data-line-number="22"></a>
@@ -239,8 +224,8 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb17-42" data-line-number="42"><span class="kw">infixl</span> <span class="dv">5</span> <span class="fu">&lt;&lt;-</span></a>
 <a class="sourceLine" id="cb17-43" data-line-number="43"><span class="ot">(&lt;&lt;-) ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
 <a class="sourceLine" id="cb17-44" data-line-number="44"><span class="dt">Null</span> <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> n <span class="dt">Null</span> <span class="dt">Null</span></a>
-<a class="sourceLine" id="cb17-45" data-line-number="45"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-46" data-line-number="46">   (left', right') <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-45" data-line-number="45"><span class="dt">Set</span> m left right <span class="fu">&lt;&lt;-</span> n <span class="fu">=</span> <span class="dt">Set</span> m left&#39; right&#39; <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-46" data-line-number="46">   (left&#39;, right&#39;) <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
 <a class="sourceLine" id="cb17-47" data-line-number="47">       <span class="dt">LT</span> <span class="ot">-&gt;</span> (left, right <span class="fu">&lt;&lt;-</span> n)</a>
 <a class="sourceLine" id="cb17-48" data-line-number="48">       <span class="dt">GT</span> <span class="ot">-&gt;</span> (left <span class="fu">&lt;&lt;-</span> n, right)</a>
 <a class="sourceLine" id="cb17-49" data-line-number="49">       <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left, right)</a>
@@ -259,8 +244,8 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb17-62" data-line-number="62"><span class="ot">(&lt;+&gt;) ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
 <a class="sourceLine" id="cb17-63" data-line-number="63"><span class="dt">Null</span> <span class="fu">&lt;+&gt;</span> set <span class="fu">=</span> set</a>
 <a class="sourceLine" id="cb17-64" data-line-number="64">set <span class="fu">&lt;+&gt;</span> <span class="dt">Null</span> <span class="fu">=</span> set</a>
-<a class="sourceLine" id="cb17-65" data-line-number="65">(<span class="dt">Set</span> m left1 right1) <span class="fu">&lt;+&gt;</span> (<span class="dt">Set</span> n left2 right2) <span class="fu">=</span> <span class="dt">Set</span> m left' right' <span class="fu">&lt;+&gt;</span> res <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-66" data-line-number="66">   (left', right', res) <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
+<a class="sourceLine" id="cb17-65" data-line-number="65">(<span class="dt">Set</span> m left1 right1) <span class="fu">&lt;+&gt;</span> (<span class="dt">Set</span> n left2 right2) <span class="fu">=</span> <span class="dt">Set</span> m left&#39; right&#39; <span class="fu">&lt;+&gt;</span> res <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-66" data-line-number="66">   (left&#39;, right&#39;, res) <span class="fu">=</span> <span class="kw">case</span> compare m n <span class="kw">of</span></a>
 <a class="sourceLine" id="cb17-67" data-line-number="67">       <span class="dt">LT</span> <span class="ot">-&gt;</span> (left1, right1 <span class="fu">&lt;+&gt;</span> right2 <span class="fu">&lt;&lt;-</span> n, left2)</a>
 <a class="sourceLine" id="cb17-68" data-line-number="68">       <span class="dt">GT</span> <span class="ot">-&gt;</span> (left1 <span class="fu">&lt;+&gt;</span> left2 <span class="fu">&lt;&lt;-</span> n, right1, right2)</a>
 <a class="sourceLine" id="cb17-69" data-line-number="69">       <span class="dt">EQ</span> <span class="ot">-&gt;</span> (left1 <span class="fu">&lt;+&gt;</span> left2, right1 <span class="fu">&lt;+&gt;</span> right2, <span class="dt">Null</span>)</a>
@@ -318,8 +303,8 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb17-121" data-line-number="121">setToList <span class="fu">=</span> setFoldr (<span class="fu">:</span>) []</a>
 <a class="sourceLine" id="cb17-122" data-line-number="122"></a>
 <a class="sourceLine" id="cb17-123" data-line-number="123"><span class="co">-- Set to list conversion using left fold</span></a>
-<a class="sourceLine" id="cb17-124" data-line-number="124"><span class="ot">setToList' ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [t]</a>
-<a class="sourceLine" id="cb17-125" data-line-number="125">setToList' <span class="fu">=</span> setFoldl (\list n <span class="ot">-&gt;</span> n<span class="fu">:</span>list) []</a>
+<a class="sourceLine" id="cb17-124" data-line-number="124"><span class="ot">setToList&#39; ::</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [t]</a>
+<a class="sourceLine" id="cb17-125" data-line-number="125">setToList&#39; <span class="fu">=</span> setFoldl (\list n <span class="ot">-&gt;</span> n<span class="fu">:</span>list) []</a>
 <a class="sourceLine" id="cb17-126" data-line-number="126"></a>
 <a class="sourceLine" id="cb17-127" data-line-number="127"><span class="co">-- Singleton set</span></a>
 <a class="sourceLine" id="cb17-128" data-line-number="128"><span class="ot">atom ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> t <span class="ot">-&gt;</span> <span class="dt">Set</span> t</a>
@@ -365,131 +350,16 @@ Tiresome! (Exercise: Write the expression for the same set assuming that the <em
 <a class="sourceLine" id="cb17-168" data-line-number="168"></a>
 <a class="sourceLine" id="cb17-169" data-line-number="169"><span class="co">-- List of all permutations of a set</span></a>
 <a class="sourceLine" id="cb17-170" data-line-number="170"><span class="ot">perms ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> <span class="dt">Set</span> t <span class="ot">-&gt;</span> [<span class="dt">Perm</span> t]</a>
-<a class="sourceLine" id="cb17-171" data-line-number="171">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms' [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
-<a class="sourceLine" id="cb17-172" data-line-number="172">   perms' ps [] <span class="fu">=</span> ps</a>
-<a class="sourceLine" id="cb17-173" data-line-number="173">   perms' ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms' [first <span class="fu">++</span> [n] <span class="fu">++</span> rest <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> concat <span class="fu">$</span> map lisa ps] ns</a>
+<a class="sourceLine" id="cb17-171" data-line-number="171">perms <span class="fu">=</span> map perm <span class="fu">.</span> perms&#39; [[]] <span class="fu">.</span> setToList <span class="kw">where</span></a>
+<a class="sourceLine" id="cb17-172" data-line-number="172">   perms&#39; ps [] <span class="fu">=</span> ps</a>
+<a class="sourceLine" id="cb17-173" data-line-number="173">   perms&#39; ps (n<span class="fu">:</span>ns) <span class="fu">=</span> perms&#39; [first <span class="fu">++</span> [n] <span class="fu">++</span> rest <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> concat <span class="fu">$</span> map lisa ps] ns</a>
 <a class="sourceLine" id="cb17-174" data-line-number="174">   lisa [] <span class="fu">=</span> [([], [])]</a>
 <a class="sourceLine" id="cb17-175" data-line-number="175">   lisa (p<span class="fu">:</span>ps) <span class="fu">=</span> ([], p<span class="fu">:</span>ps) <span class="fu">:</span> [(p<span class="fu">:</span>first, rest) <span class="fu">|</span> (first, rest) <span class="ot">&lt;-</span> lisa ps]</a>
 <a class="sourceLine" id="cb17-176" data-line-number="176"></a>
 <a class="sourceLine" id="cb17-177" data-line-number="177"><span class="co">-- Set of all permutations of a set</span></a>
 <a class="sourceLine" id="cb17-178" data-line-number="178"><span class="ot">permSet ::</span> <span class="dt">Ord</span> t <span class="ot">=&gt;</span> (<span class="dt">Set</span> t) <span class="ot">-&gt;</span> <span class="dt">Set</span> (<span class="dt">Perm</span> t)</a>
 <a class="sourceLine" id="cb17-179" data-line-number="179">permSet <span class="fu">=</span> listToSet <span class="fu">.</span> perms</a></code></pre></div>
-<p>While exporting the module, we hide the unsafe constructors <code class="sourceCode haskell"><span class="dt">Set</span></code> and <code class="sourceCode haskell"><span class="dt">Perm</span></code>.</p>
-    </section>
-</article>
+<p>While exporting the module, we hide the unsafe constructors <code class="sourceCode haskell"><span class="dt">Set</span></code> and <code class="sourceCode haskell"><span class="dt">Perm</span></code>.</p>]]></summary>
+</entry>
 
-    <p><Br /></p><hr>
-    <div class="comments">    
-    <header class="comments">DISQUSsion</header>
-    Thoughts, suggestions, questions, criticism…<P></P>
-    <span class="note">
-            <header>Note</header>
-            You can use <a href="https://help.disqus.com/commenting/what-html-tags-are-allowed-within-comments" title="Disqus – HTML Tags" target="_blank">HTML tags and syntax highlighting</a> in your comments.
-            To get syntax highlighting, use
-            <div>
-                <div style="z-index:0; position:absolute; vertical-align: middle; opacity:0;"><input type="text" value="<pre><code class='haskell'> </code></pre>" id="codeText" style="height: 1px;"></div>
-                <div style="z-index:1; position:relative">
-                <pre><code class="sourceCode HTML">&lt;pre&gt;&lt;code class='haskell'&gt; &lt;/code&gt;&lt;/pre&gt;</code> <a title="Copy to clipboard" onclick="copyCode()" class="copyCode"><i class="fa fa-clipboard" aria-hidden="true"></i></a></pre>
-                </div>
-            </div>
-            <script>
-                function copyCode() {
-                    var codeTag = document.getElementById("codeText");
-                    codeTag.select();
-                    document.execCommand("copy");
-                }
-            </script>
-            (just copy and paste the above, and insert your code between the <code>code</code> tags). Unfortunately, <a href="https://stackoverflow.com/a/18158057/9530197" title="Stack Overflow Answer" target="_blank">Disqus does not presently support MathJax</a>. So we have to either use <a href="http://mathb.in/" title="MathBin" target="_blank">a math pastebin</a>, or just type \(\LaTeX\) code and hope everyone can read it, or…
-<pre><a href="https://github.com/GodotMisogi/math-notes/tree/master/Hopf%20Algebra%20and%20Combinatorics" title="Universal Property of Tensor Products" target="_blank">  V×W-ϕ->V⊗W
-    \     |
-    y\    |ỹ
-      \   |
-        ↘ ↓
-         L</a></pre>
-use ASCII math?!
-    </span>
-    <P></P>
-    <div id="disqus_thread"></div>
-    </div>
-    
-    <script>
-    /**
-    *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-    *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
-    
-    var disqus_config = function () {
-    this.page.url = 'https://vynm.github.io/Comutations/'+'/posts/2018-05-25-00Introduction.html';  // Replace PAGE_URL with your page's canonical URL variable
-    this.page.identifier = 'Introduction+May 25, 2018'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-    };
-    
-    (function() { // DON'T EDIT BELOW THIS LINE
-    var d = document, s = d.createElement('script');
-    s.src = 'https://comutations.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-    })();
-    </script>
-    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-     
-    <script id="dsq-count-scr" src="//comutations.disqus.com/count.js" async></script>
-                <nav><div id="mySidenav" class="sidenav" style="margin-left:0%">
-        <a id="btnNav" class="closebtn" title="Show/Hide Contents" style="cursor: pointer;">
-                <div class="bar1"></div>
-                <div class="bar2"></div>
-                <div class="bar3"></div>
-        </a>
-        <div class="contentsbar"><div class="contentslist">
-            
-            <a href="../posts/2018-05-25-00Introduction.html">
-                <div class="postname">Introduction</div>
-            </a>
-            
-        </div></div>
-    </div>
-
-    <script>
-    document.getElementById("btnNav").onclick = function() {
-        document.getElementById("mySidenav").classList.toggle("open");
-        document.getElementById("btnNav").classList.toggle("change");
-
-    }
-    </script></nav>
-        </div>
-        <nav>
-        <div class="rightContainer"><div class="right"><div class="iconset">
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-            <a href="../" class="homeLink">
-                <i title="Home" arial-label="Home" class="fa fa-home" aria-hidden="true" role="img"></i>
-            </a><a href="../about.html" class="abLink">
-                <i title="About" aria-label="About" class="fa fa-info" aria-hidden="true" role="img"></i>
-            </a>
-            <a href="../contents.html" class="ctsLink">
-                <i title="Contents" aria-label="Contents" class="fa fa-list" aria-hidden="true" role="img"></i>
-            </a>
-            <a href="../atom.xml" class="feedLink">
-                <i title="Atom Feed" aria-label="Atom Feed" class="fa fa-feed" aria-hidden="true" role="img"></i>
-            </a>
-            <div class="contact">
-                <a href="https://github.com/VynM" target="_blank" class="ghLink">
-                    <i title="GitHub" aria-label="GitHub" class="fa fa-github" aria-hidden="true" role="img"></i>
-                </a>
-                <a href="https://stackexchange.com/users/4492099/m-vinay" target="_blank" class="seLink">
-                    <i title="Stack Exchange" aria-label="Stack Exchange" class="fa fa-stack-exchange" aria-hidden="true" role="img"></i>
-                </a>
-                <a href="https://quora.com/profile/Vinay-Madhusudanan" target="_blank" class="qLink">
-                    <i title="Quora" aria-label="Quora" class="fa fa-quora" aria-hidden="true" role="img"></i>
-                </a>
-                <a href="mailto:vinay.m@gmail.com" class="emLink">
-                    <i title="Email" aria-label="Email" class="fa fa-envelope-o" aria-hidden="true" role="img"></i>
-                </a>
-            </div>
-        </div></div></div>
-        </nav>
-        <footer>
-            Site proudly generated by
-            <a href="http://jaspervdj.be/hakyll" target="_blank">
-                Hakyll <img src="../images/haskell-logo.png" width="20px">
-            </a>
-        </footer>
-    </body>
-</html>
+</feed>
